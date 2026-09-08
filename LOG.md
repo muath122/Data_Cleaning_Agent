@@ -37,3 +37,13 @@ Never include applicant values or model output from real data.
 - Documented the distinction between prepared-input attestation and actual anonymization, and between stage completion and dataset validation.
 - Validation: local unit tests, Ruff checks, and synthetic CLI export pass; hosted CI results are pending the push.
 - Startup's real model-download check is in progress; no live inference result is claimed.
+
+## 2026-09-09 — Startup verification and final regression check
+
+- Ran `python3 start.py --download-only`: uv requirements installation completed and the pinned Qwen model downloaded successfully.
+- Ran the runtime with `--offline --download-only`: the cached model was reused successfully without a network download.
+- Added a regression case preserving distinct conditional-branch columns and skipped answers.
+- Validation: 39 tests passed locally; Ruff and diff checks passed. A synthetic XLSX stage export was verified.
+- Live inference remains untested here because `llama-server` is not installed. Startup reports the prerequisite and retains cached weights.
+- Windows/Linux CI is configured, but its remote status could not be read: the GitHub connector returned 404 for this repository's Actions endpoint.
+- All changes were committed and pushed in logical increments; real inputs, generated outputs, and model weights remain outside Git.

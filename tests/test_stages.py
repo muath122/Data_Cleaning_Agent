@@ -61,6 +61,23 @@ def test_uncertain_schema_preserves_source_name():
     assert result.issues[0]["rule"] == "uncertain_schema"
 
 
+def test_conditional_branch_columns_and_skipped_answers_remain_separate():
+    df = pd.DataFrame(
+        [["Developer", None], [None, "Analyst"]], columns=["Preferred Role", "Preferred Role 2"]
+    )
+    report = SchemaReport(
+        columns=[
+            column(0, "Preferred Role", "preferred_role", "categorical"),
+            column(1, "Preferred Role 2", "preferred_role_2", "categorical"),
+        ]
+    )
+    result = apply_schema(df, report)
+    assert list(result.dataframe.columns) == ["preferred_role", "preferred_role_2"]
+    assert result.dataframe.iloc[0, 1] is None
+    assert result.dataframe.iloc[1, 0] is None
+    assert not result.issues
+
+
 def test_context_preserves_duplicate_column_positions_and_false():
     df = pd.DataFrame([[False, "   "], [False, None]], columns=["same", "same"])
     context = build_schema_context(df)
