@@ -23,11 +23,19 @@ def load_prompt(role: str) -> str:
 
 class LocalModel:
     def __init__(self, base_url=None, model=None, *, transport=None):
-        self.base_url = (base_url or os.getenv("QWEN_BASE_URL", "http://127.0.0.1:8080")).rstrip("/")
+        self.base_url = (base_url or os.getenv("QWEN_BASE_URL", "http://127.0.0.1:8080")).rstrip(
+            "/"
+        )
         parsed = urlparse(self.base_url)
-        if (parsed.scheme != "http" or parsed.hostname not in {"127.0.0.1", "localhost", "::1"}
-                or parsed.username or parsed.password or parsed.query or parsed.fragment
-                or parsed.path not in {"", "/v1"}):
+        if (
+            parsed.scheme != "http"
+            or parsed.hostname not in {"127.0.0.1", "localhost", "::1"}
+            or parsed.username
+            or parsed.password
+            or parsed.query
+            or parsed.fragment
+            or parsed.path not in {"", "/v1"}
+        ):
             raise ValueError("QWEN_BASE_URL must be a local HTTP address, optionally ending in /v1")
         if self.base_url.endswith("/v1"):
             self.base_url = self.base_url[:-3]
@@ -39,7 +47,10 @@ class LocalModel:
             "model": self.model,
             "messages": [
                 {"role": "system", "content": load_prompt(role)},
-                {"role": "user", "content": json.dumps(payload, ensure_ascii=False, allow_nan=False)},
+                {
+                    "role": "user",
+                    "content": json.dumps(payload, ensure_ascii=False, allow_nan=False),
+                },
             ],
             "response_format": {"type": "json_object", "schema": response_type.model_json_schema()},
             "temperature": 0.0,
@@ -48,8 +59,9 @@ class LocalModel:
             "stream": False,
         }
         try:
-            with httpx.Client(timeout=300, trust_env=False, follow_redirects=False,
-                              transport=self.transport) as client:
+            with httpx.Client(
+                timeout=300, trust_env=False, follow_redirects=False, transport=self.transport
+            ) as client:
                 response = client.post(f"{self.base_url}/v1/chat/completions", json=body)
                 response.raise_for_status()
             choice = response.json()["choices"][0]
@@ -57,6 +69,10 @@ class LocalModel:
                 raise ModelError("Model output was incomplete; no changes were applied")
             return response_type.model_validate_json(choice["message"]["content"])
         except httpx.HTTPError as exc:
-            raise ModelError("Local Qwen request failed. Check the server, model and context size.") from exc
+            raise ModelError(
+                "Local Qwen request failed. Check the server, model and context size."
+            ) from exc
         except (ValueError, KeyError, IndexError, TypeError) as exc:
-            raise ModelError("Qwen returned invalid structured output; no changes were applied") from exc
+            raise ModelError(
+                "Qwen returned invalid structured output; no changes were applied"
+            ) from exc

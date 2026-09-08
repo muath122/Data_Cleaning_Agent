@@ -41,4 +41,31 @@ uv run --no-project python -m pytest tests
 
 Dependencies remain in requirements files and can also be installed with pip.
 See [LOG.md](LOG.md) for incremental implementation status. No real datasets or
-model weights belong in Git. The existing experiments are being migrated into the package.
+model weights belong in Git.
+
+## Run a stage
+
+```bash
+uv run --no-project python -m data_cleaning_agent status
+uv run --no-project python -m data_cleaning_agent stage text --input examples/synthetic.csv --column feedback --output outputs/demo.csv
+```
+
+This produces a separate CSV and JSON report with `.text` in their names. Source
+files are preserved. Reports identify changed cells and review issues and explicitly
+state that the full pipeline has not validated the dataset.
+
+See [examples](examples/README.md) for schema and category commands, prepared JSON,
+Excel sheet/header selection, and optional text enrichment.
+
+| Stage | Current implementation |
+| --- | --- |
+| Schema | Context, model proposals, validated renaming by column index; cross-file reconciliation pending |
+| Structured data | Draft role and explicit placeholder; phone/email/date normalization not implemented |
+| Skills/categories | Validated scalar mappings for a selected column/category; ambiguous and multi-value answers flagged |
+| Text | Whitespace/placeholder cleanup; optional local masking, sentiment, and keywords |
+| Validation | Draft role and explicit placeholder; final data validation not implemented |
+| Privacy/integration | Prepared-input boundary and readiness checks; automatic masking/restoration and full pipeline pending |
+
+`pipeline` exits with an explanation of missing stages. Model-backed stages require
+synthetic or manually sanitized JSON. Raw Excel/CSV model execution is blocked until
+the privacy layer exists. That JSON marker is an attestation, not automatic anonymization.

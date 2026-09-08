@@ -2,9 +2,9 @@
 
 import argparse
 import os
-from pathlib import Path
 import shutil
 import subprocess
+from pathlib import Path
 
 from huggingface_hub import hf_hub_download
 from huggingface_hub.errors import LocalEntryNotFoundError
@@ -28,12 +28,17 @@ def ensure_model(*, offline=False) -> Path:
     except LocalEntryNotFoundError:
         if offline:
             raise RuntimeError("Qwen is not cached. Run startup once without --offline.") from None
-        print(f"Downloading {kwargs['filename']} from Hugging Face; this may take several minutes.", flush=True)
+        print(
+            f"Downloading {kwargs['filename']} from Hugging Face; this may take several minutes.",
+            flush=True,
+        )
         path = hf_hub_download(**kwargs)
     path = Path(path)
     with path.open("rb") as handle:
         if handle.read(4) != b"GGUF":
-            raise RuntimeError("Cached model is not a GGUF file. Remove the corrupt model cache and retry.")
+            raise RuntimeError(
+                "Cached model is not a GGUF file. Remove the corrupt model cache and retry."
+            )
     return path
 
 
@@ -45,10 +50,24 @@ def server_command(model_path: Path, port: int, context_size: int) -> list[str]:
             "llama-server was not found. Install llama.cpp (see README), "
             "or set LLAMA_SERVER to the full executable path. Qwen weights remain cached."
         )
-    return [executable, "--model", str(model_path), "--alias",
-            os.getenv("QWEN_MODEL_ALIAS", "qwen-cleaner"), "--host", "127.0.0.1",
-            "--port", str(port), "--ctx-size", str(context_size), "--parallel", "1",
-            "--jinja", "--chat-template-kwargs", '{"enable_thinking":false}']
+    return [
+        executable,
+        "--model",
+        str(model_path),
+        "--alias",
+        os.getenv("QWEN_MODEL_ALIAS", "qwen-cleaner"),
+        "--host",
+        "127.0.0.1",
+        "--port",
+        str(port),
+        "--ctx-size",
+        str(context_size),
+        "--parallel",
+        "1",
+        "--jinja",
+        "--chat-template-kwargs",
+        '{"enable_thinking":false}',
+    ]
 
 
 def main(argv=None) -> int:
@@ -66,7 +85,9 @@ def main(argv=None) -> int:
         if args.download_only:
             return 0
         command = server_command(model, args.port, args.context_size)
-        print(f"Starting Qwen at http://127.0.0.1:{args.port}. Keep this terminal open.", flush=True)
+        print(
+            f"Starting Qwen at http://127.0.0.1:{args.port}. Keep this terminal open.", flush=True
+        )
         return subprocess.call(command)
     except KeyboardInterrupt:
         return 130

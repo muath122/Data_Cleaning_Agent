@@ -1,0 +1,9 @@
+{
+  "provenance": "synthetic",
+  "columns": ["E-mail", "University Email", "التخصص", "feedback", "attendance"],
+  "rows": [
+    ["demo@example.invalid", "student@example.invalid", "علوم الحاسب", "  مفيد   جدا  ", true],
+    ["second@example.invalid", "student2@example.invalid", "Computer Science", "لا يوجد", false],
+    ["third@example.invalid", null, "CS", "no", false]
+  ]
+}

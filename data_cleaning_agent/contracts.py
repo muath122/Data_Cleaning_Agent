@@ -16,9 +16,21 @@ class ColumnMapping(StrictModel):
     original_name: str
     canonical_name: str | None = Field(pattern=r"^[a-z][a-z0-9_]*$")
     column_type: Literal[
-        "name", "email", "phone", "datetime", "integer", "float", "boolean",
-        "categorical", "multi_select", "free_text", "identifier", "url",
-        "string", "empty", "other",
+        "name",
+        "email",
+        "phone",
+        "datetime",
+        "integer",
+        "float",
+        "boolean",
+        "categorical",
+        "multi_select",
+        "free_text",
+        "identifier",
+        "url",
+        "string",
+        "empty",
+        "other",
     ]
     confidence: float = Field(ge=0, le=1)
 

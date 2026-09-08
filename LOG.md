@@ -14,3 +14,17 @@ Never include applicant values or model output from real data.
 - Validation: 15 runtime/client/prompt tests passed; startup help and `git diff --check` passed.
 - The model filename/revision was verified online. Real model download/inference has not yet been exercised locally.
 - Remaining: reusable stages, CLI, privacy/validation scaffolds, documentation, and tests.
+
+## 2026-09-09 — Reusable stages and command-line workflow
+
+- Migrated schema, category, and text functionality into one package and removed obsolete root demo scripts.
+  Original implementations remain in Git history; the original notebook is preserved under `notebooks/` with outputs cleared.
+- Schema now validates coverage, indices, source names, confidence, and collisions before renaming.
+- Category mappings are batched over unique scalar values, validated before application, and leave ambiguous/multi-value inputs unchanged.
+- Text preserves language and original columns, requires explicit target columns, and makes enrichment/masking opt-in.
+- Added CSV/XLSX stage exports, JSON change reports, source positions, sheet/header selection, and overwrite protection.
+- Added prepared-input contracts and explicit privacy/structured/validation placeholders. The unfinished pipeline fails clearly.
+- Added invented examples and migration notes. Real data stays untouched and ignored.
+- Validation: 38 automated tests passed; Ruff checks/formatting passed. Tests cover mixed sheet layouts,
+  checkbox-only rows, leading-zero strings, literal Excel strings, schema failures, batching, and private-input blocking.
+- Remaining: expanded architecture/contribution documentation, dataset findings, CI, and startup verification.

@@ -1,0 +1,81 @@
+"""Schema proposals are applied by source position, never by model return order."""
+
+import pandas as pd
+
+from ..contracts import SchemaReport, StageResult
+from ..model import LocalModel, ModelError
+from ..privacy import PreparedData
+
+
+def build_schema_context(df: pd.DataFrame, sample_size=5, max_sample_chars=120) -> list[dict]:
+    if sample_size < 1 or max_sample_chars < 1:
+        raise ValueError("Sample limits must be positive")
+    context = []
+    for index, name in enumerate(df.columns):
+        column = df.iloc[:, index]
+        values = [
+            str(value).strip() for value in column if not pd.isna(value) and str(value).strip()
+        ]
+        unique = list(dict.fromkeys(values))
+        context.append(
+            {
+                "column_index": index,
+                "column_name": str(name),
+                "pandas_dtype": str(column.dtype),
+                "non_null_count": len(values),
+                "unique_count": len(unique),
+                "sample_values": [
+                    v[:max_sample_chars] + ("..." if len(v) > max_sample_chars else "")
+                    for v in unique[:sample_size]
+                ],
+                "is_empty": not values,
+            }
+        )
+    return context
+
+
+def apply_schema(df: pd.DataFrame, report: SchemaReport) -> StageResult:
+    report = SchemaReport.model_validate(report.model_dump())
+    indices = [column.column_index for column in report.columns]
+    if sorted(indices) != list(range(len(df.columns))):
+        raise ModelError("Schema response must cover every column index exactly once")
+    context = build_schema_context(df)
+    result = StageResult(df.copy(deep=True), "schema")
+    names = list(df.columns)
+    for column in report.columns:
+        i = column.column_index
+        if column.original_name != str(df.columns[i]):
+            raise ModelError("Schema response changed a source column name")
+        if context[i]["is_empty"]:
+            column.canonical_name = None
+            column.column_type = "empty"
+            column.confidence = 1.0
+        elif column.canonical_name is None or column.column_type == "empty":
+            raise ModelError("Nonempty column has an empty schema mapping")
+        elif column.confidence < 0.70:
+            result.issues.append(
+                {"column_index": i, "rule": "uncertain_schema", "confidence": column.confidence}
+            )
+        else:
+            names[i] = column.canonical_name
+        if names[i] != df.columns[i]:
+            result.changes.append(
+                {"column_index": i, "before": str(df.columns[i]), "after": names[i]}
+            )
+    if len(names) != len(set(names)):
+        raise ModelError(
+            "Schema mapping creates or retains duplicate names; resolve by column index before applying"
+        )
+    result.dataframe.columns = names
+    result.details = report.model_dump()
+    return result
+
+
+def run_schema(prepared: PreparedData, model=None) -> StageResult:
+    if not isinstance(prepared, PreparedData):
+        raise TypeError("Schema inference requires PreparedData, not a raw dataframe")
+    df = prepared.dataframe()
+    report = (model or LocalModel()).analyze("schema", build_schema_context(df), SchemaReport)
+    result = apply_schema(df, report)
+    result.details["input_provenance"] = prepared.provenance
+    return result

@@ -5,9 +5,9 @@ import httpx
 import pytest
 from huggingface_hub.errors import LocalEntryNotFoundError
 
+from data_cleaning_agent import runtime
 from data_cleaning_agent.contracts import SchemaReport
 from data_cleaning_agent.model import LocalModel, ModelError, load_prompt
-from data_cleaning_agent import runtime
 
 
 def test_cached_model_does_not_download(tmp_path, monkeypatch):
@@ -66,16 +66,25 @@ def test_client_validates_structured_response():
         body = json.loads(request.content)
         assert body["response_format"]["schema"]["properties"]["columns"]
         assert body["chat_template_kwargs"] == {"enable_thinking": False}
-        return httpx.Response(200, json={"choices": [{"finish_reason": "stop", "message": {"content": '{"columns":[]}'}}]})
+        return httpx.Response(
+            200,
+            json={"choices": [{"finish_reason": "stop", "message": {"content": '{"columns":[]}'}}]},
+        )
 
     result = LocalModel(transport=httpx.MockTransport(handler)).analyze("schema", [], SchemaReport)
     assert result.columns == []
 
 
-@pytest.mark.parametrize("content,finish", [("not JSON", "stop"), ('{"columns":[]}', "length"), ('{"columns":[],"extra":1}', "stop")])
+@pytest.mark.parametrize(
+    "content,finish",
+    [("not JSON", "stop"), ('{"columns":[]}', "length"), ('{"columns":[],"extra":1}', "stop")],
+)
 def test_client_rejects_bad_output(content, finish):
-    transport = httpx.MockTransport(lambda request: httpx.Response(200, json={
-        "choices": [{"finish_reason": finish, "message": {"content": content}}]}))
+    transport = httpx.MockTransport(
+        lambda request: httpx.Response(
+            200, json={"choices": [{"finish_reason": finish, "message": {"content": content}}]}
+        )
+    )
     with pytest.raises(ModelError):
         LocalModel(transport=transport).analyze("schema", [], SchemaReport)
 
