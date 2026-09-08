@@ -28,3 +28,12 @@ Never include applicant values or model output from real data.
 - Validation: 38 automated tests passed; Ruff checks/formatting passed. Tests cover mixed sheet layouts,
   checkbox-only rows, leading-zero strings, literal Excel strings, schema failures, batching, and private-input blocking.
 - Remaining: expanded architecture/contribution documentation, dataset findings, CI, and startup verification.
+
+## 2026-09-09 — Team documentation and cross-platform checks
+
+- Expanded README setup, configuration, role status, examples, architecture explanation, and repository guide.
+- Added architecture/contracts, aggregate data findings, contributor instructions, and prompt documentation.
+- Added GitHub Actions for Python 3.11 on Windows and Linux using uv requirements installation.
+- Documented the distinction between prepared-input attestation and actual anonymization, and between stage completion and dataset validation.
+- Validation: local unit tests, Ruff checks, and synthetic CLI export pass; hosted CI results are pending the push.
+- Startup's real model-download check is in progress; no live inference result is claimed.
