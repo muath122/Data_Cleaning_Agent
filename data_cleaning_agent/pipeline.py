@@ -2,7 +2,7 @@
 
 STAGE_STATUS = {
     "schema": "implemented; requires prepared input; cross-file reconciliation pending",
-    "structured": "not implemented",
+    "structured": "implemented; deterministic rules and review-only university proposals",
     "categories": "implemented for selected scalar values; requires prepared input",
     "text": "implemented; optional heuristic enrichment and masking",
     "validation": "not implemented",
@@ -12,6 +12,6 @@ STAGE_STATUS = {
 
 def run_pipeline(*args, **kwargs):
     raise NotImplementedError(
-        "Full pipeline is not ready: privacy preparation/restoration, structured-data "
-        "normalization, and final validation are missing. Run individual stages instead."
+        "Full pipeline is not ready: privacy preparation/restoration and final validation "
+        "are missing. Run individual stages instead."
     )

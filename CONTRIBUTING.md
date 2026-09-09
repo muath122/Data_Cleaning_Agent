@@ -22,12 +22,13 @@ the shared requirements. The llama.cpp executable is installed separately.
 | Role | Implementation | Instructions |
 | --- | --- | --- |
 | Schema | `data_cleaning_agent/stages/schema.py` | `prompts/schema.md` |
-| Structured | `data_cleaning_agent/stages/structured.py` | `prompts/structured.md` |
+| Structured | `data_cleaning_agent/stages/structured.py` and `data_cleaning_agent/structured/` | `prompts/structured.md` |
 | Categories | `data_cleaning_agent/stages/categories.py` | `prompts/categories.md` |
 | Text | `data_cleaning_agent/stages/text.py` | `prompts/text.md` |
 | Validation/integration | Package `stages/validation.py`, `pipeline.py`, `privacy.py` | `prompts/validation.md` |
 
 Read [architecture](docs/architecture.md) and [dataset findings](docs/data-notes.md).
+Read [Agent 2 rules](docs/structured-data.md) before extending structured-field policies.
 Coordinate schema/text contracts with the validation/integration owner.
 
 ## Implementing a role

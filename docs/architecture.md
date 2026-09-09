@@ -11,7 +11,7 @@ or separate model process per role.
 flowchart LR
     I[CSV / Excel] --> P[Privacy: planned]
     P --> S[Schema]
-    S --> D[Structured data: planned]
+    S --> D[Structured data]
     D --> C[Categories]
     C --> T[Text]
     T --> V[Validation: planned]
@@ -19,6 +19,7 @@ flowchart LR
     R --> O[Final export]
     Q[One local Qwen server] --- S
     Q --- C
+    Q -. optional university review .- D
 ```
 
 This is the intended pipeline. Current commands run individual stages; `pipeline`
@@ -30,14 +31,14 @@ takes precedence over the earlier Colab diagram. Desktop execution is the curren
 | Component | Owns | Excludes |
 | --- | --- | --- |
 | Schema | Column context, semantic types, canonical names | Cell cleanup, merging people or form branches |
-| Structured data | Future phone/email/ID/date/gender/attendance rules | Skills and free-text rewriting |
+| Structured data | Local phone/email/ID/date/gender/attendance rules and university formatting | Skills, free-text rewriting, fuzzy auto-merging |
 | Categories | Scalar aliases in a selected category | Splitting mixed answers, treating preferences as qualifications |
 | Text | Explicit text columns, whitespace, placeholder flags | Translation, summarization, ranking |
 | Validation | Future issue detection | Repairing values, deleting rows, rerunning stages |
 | Python orchestration | Readiness, I/O, model boundary, ordering | Claiming missing stages ran |
 
-The structured-data owner will define tested Python rules and any model-response
-schema required for ambiguity. The validation/integration owner coordinates contracts
+Structured data uses tested Python rules and an optional UniversityJudgment response
+for review proposals. The validation/integration owner coordinates contracts
 with schema/text and implements the missing privacy and pipeline components.
 
 ## Current interfaces
@@ -46,6 +47,10 @@ with schema/text and implements the missing privacy and pipeline components.
 - `run_categories(prepared, column, category, model=None)` batches 20 distinct values
   and returns a result only after all batches validate.
 - `run_text(dataframe, columns, enrich=False, mask_pii=False)` runs locally.
+- `run_structured(data, column_roles=None, judge_universities=False, model=None)`
+  accepts a dataframe for deterministic rules or PreparedData for optional model assistance.
+- `run_structured_many(tables, ...)` shares observed university spellings across tables;
+  no cross-file row merging occurs. Fuzzy/model equivalences are review-only.
 - `LocalModel.analyze(role, payload, response_type)` sends the Markdown system prompt
   and JSON payload to localhost with a Pydantic-generated response schema.
 - `read_table(path, sheet=0, header_row=1)` reads one selected table.

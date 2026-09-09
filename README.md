@@ -89,15 +89,27 @@ Excel sheet/header selection, and optional text enrichment.
 | Stage | Current implementation |
 | --- | --- |
 | Schema | Context, model proposals, validated renaming by column index; cross-file reconciliation pending |
-| Structured data | Draft role and explicit placeholder; phone/email/date normalization not implemented |
+| Structured data | Local phone/email/ID/gender/level/date/attendance/boolean rules; university formatting and review proposals |
 | Skills/categories | Validated scalar mappings for a selected column/category; ambiguous and multi-value answers flagged |
 | Text | Whitespace/placeholder cleanup; optional local masking, sentiment, and keywords |
 | Validation | Draft role and explicit placeholder; final data validation not implemented |
 | Privacy/integration | Prepared-input boundary and readiness checks; automatic masking/restoration and full pipeline pending |
 
-`pipeline` exits with an explanation of missing stages. Model-backed stages require
+`pipeline` exits with an explanation of missing privacy and validation components. Model-backed stages require
 synthetic or manually sanitized JSON. Raw Excel/CSV model execution is blocked until
 the privacy layer exists. That JSON marker is an attestation, not automatic anonymization.
+
+Agent 2 can run on raw CSV/XLSX without Qwen:
+
+```bash
+uv run python main.py stage structured --input examples/structured.csv --output outputs/structured-demo.csv
+uv run python main.py stage structured --input examples/structured.csv --field "consent=boolean" --output outputs/consent-demo.csv
+uv run python main.py batch-structured --input data --output-dir outputs/agent2-batch
+```
+
+Without `--field`, conservative header aliases select known roles; with it, only
+the specified fields are processed. See [Agent 2 rules and batch usage](docs/structured-data.md).
+The full pipeline still needs automatic privacy preparation/restoration and final validation.
 
 ## How the model edits data
 

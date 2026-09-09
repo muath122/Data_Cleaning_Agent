@@ -3,6 +3,20 @@
 Record each logical change, why it was made, checks performed, and remaining limitations.
 Never include applicant values or model output from real data.
 
+## PR #4 — Integrate Amirah's structured-data agent
+
+- Merged Amirah's PR ancestry and resolved the requirements conflict by retaining the shared uv-compatible dependencies; removed her unused NumPy import.
+- Moved structured rules, Arabic/English aliases, university helpers, and batch handling into the current package.
+- Connected Agent 2 to StageResult, CLI, schema-compatible column roles, source-position reports, and existing safe exports.
+- Tightened numeric/date/ID handling: avoid partial academic-level matches, ambiguous date parsing, invented ID digits, and value-based boolean guesses in unrelated columns.
+- Preserved distinct personal/university emails and conditional/repeated columns. Unknown values remain for review.
+- University case/whitespace equivalence is applied; fuzzy and shared-Qwen comparisons are review-only. Model assistance requires PreparedData.
+- Replaced destructive ZIP extraction/output cleanup with in-memory XLSX reads and new-directory exports; duplicate basenames retain separate outputs.
+- Added runnable examples and Agent 2 documentation. Pipeline readiness now lists only privacy/restoration and final validation as missing prerequisites.
+- Validation: 84 automated tests, Ruff checks, formatting, diff checks, and the synthetic structured CLI export passed.
+- An in-memory check processed all 17 non-empty local sheets (2 empty sheets skipped for the check), preserving all 2,334 rows and source columns. No source files were written and no model calls were made.
+- Integration preserves Amirah's original commit ancestry. Remote main and PR head were checked before publishing; GitHub API/browser access was unavailable, so publishing uses the authenticated Git remote.
+
 ## 2026-09-09 — Shared local model foundation
 
 - Added a cross-platform Python package, strict response contracts, and a shared llama.cpp client.

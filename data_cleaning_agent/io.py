@@ -9,13 +9,14 @@ import pandas as pd
 from .contracts import StageResult
 
 
-def read_table(path, *, sheet=0, header_row=1) -> pd.DataFrame:
-    path = Path(path)
+def read_table(path, *, sheet=0, header_row=1, source_name=None) -> pd.DataFrame:
+    reader = path
+    path = Path(source_name) if source_name is not None else Path(path)
     if header_row < 1:
         raise ValueError("header-row is one-based and must be positive")
     if path.suffix.lower() == ".csv":
         raw = pd.read_csv(
-            path,
+            reader,
             header=None,
             dtype=str,
             keep_default_na=False,
@@ -24,7 +25,7 @@ def read_table(path, *, sheet=0, header_row=1) -> pd.DataFrame:
         )
     elif path.suffix.lower() == ".xlsx":
         raw = pd.read_excel(
-            path,
+            reader,
             sheet_name=sheet,
             header=None,
             dtype=object,

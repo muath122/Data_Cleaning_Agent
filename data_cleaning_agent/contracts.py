@@ -69,6 +69,14 @@ class CategoryReport(StrictModel):
     results: list[CategoryMapping]
 
 
+class UniversityJudgment(StrictModel):
+    value_a: str
+    value_b: str
+    same_university: bool | None
+    confidence: float = Field(ge=0, le=1)
+    reasoning: str
+
+
 @dataclass
 class StageResult:
     """References are zero-based source positions. Reports can contain private values."""

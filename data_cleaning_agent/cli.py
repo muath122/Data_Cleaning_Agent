@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import zipfile
 from pathlib import Path
 from typing import get_args
 
@@ -14,7 +15,9 @@ from .pipeline import STAGE_STATUS, run_pipeline
 from .privacy import PrivacyNotReady, prepare_private_data, read_prepared
 from .stages.categories import run_categories
 from .stages.schema import run_schema
+from .stages.structured import run_structured
 from .stages.text import run_text
+from .structured.batch import process_input
 
 
 def parser():
@@ -25,9 +28,11 @@ def parser():
     commands.add_parser("status", help="Show implemented and missing stages")
     commands.add_parser("pipeline", help="Check full-pipeline readiness (currently fails)")
     stage = commands.add_parser("stage", help="Run one implemented stage")
-    stage.add_argument("name", choices=["schema", "categories", "text"])
+    stage.add_argument("name", choices=["schema", "structured", "categories", "text"])
     inputs = stage.add_mutually_exclusive_group(required=True)
-    inputs.add_argument("--input", type=Path, help="Raw CSV/XLSX; Python-only text stage")
+    inputs.add_argument(
+        "--input", type=Path, help="Raw CSV/XLSX; deterministic text/structured stages"
+    )
     inputs.add_argument(
         "--sanitized-input", type=Path, help="Explicitly prepared JSON; see examples/README.md"
     )
@@ -51,7 +56,40 @@ def parser():
         action="store_true",
         help="Text only: mask patterns in appended text, keeping original columns",
     )
+    stage.add_argument(
+        "--field",
+        action="append",
+        default=[],
+        help="Structured only: COLUMN=ROLE; repeat to select fields",
+    )
+    stage.add_argument(
+        "--judge-universities",
+        action="store_true",
+        help="Structured only: prepared input, Qwen review proposals",
+    )
+    batch = commands.add_parser(
+        "batch-structured", help="Normalize an XLSX folder/ZIP using local rules"
+    )
+    batch.add_argument("--input", type=Path, required=True)
+    batch.add_argument("--output-dir", type=Path, required=True)
+    batch.add_argument("--field", action="append", default=[])
+    batch.add_argument("--header-row", type=int, default=1)
+    batch_sheets = batch.add_mutually_exclusive_group()
+    batch_sheets.add_argument("--sheet")
+    batch_sheets.add_argument("--sheet-index", type=int, default=0)
     return root
+
+
+def field_roles(fields):
+    if not fields:
+        return None
+    roles = {}
+    for field in fields:
+        name, separator, role = field.rpartition("=")
+        if not separator or not name or not role or name in roles:
+            raise ValueError("Use distinct COLUMN=ROLE values for --field")
+        roles[name] = role
+    return roles
 
 
 def main(argv=None):
@@ -65,6 +103,21 @@ def main(argv=None):
             run_pipeline()
         if args.sheet_index < 0 or args.header_row < 1:
             raise ValueError("Sheet index must be nonnegative and header row must be positive")
+        if args.command == "batch-structured":
+            archive, results = process_input(
+                args.input,
+                args.output_dir,
+                field_roles(args.field),
+                sheet=args.sheet if args.sheet is not None else args.sheet_index,
+                header_row=args.header_row,
+            )
+            print(f"Structured batch complete: {len(results)} tables. Full pipeline has not run.")
+            print(archive)
+            return 0
+        if args.name != "structured" and (args.field or args.judge_universities):
+            raise ValueError("--field and --judge-universities are structured-stage options")
+        if args.name == "structured" and (args.column or args.category):
+            raise ValueError("Structured uses --field COLUMN=ROLE, not --column or --category")
         if args.name != "text" and (args.enrich or args.mask_pii):
             raise ValueError("--enrich and --mask-pii are text-stage options")
         if args.name == "schema" and (args.column or args.category):
@@ -75,7 +128,7 @@ def main(argv=None):
             raise ValueError("Categories requires exactly one --column and a --category")
         source = args.input or args.sanitized_input
         check_outputs(args.output, args.name, source)
-        if args.input and args.name != "text":
+        if args.input and (args.name not in {"text", "structured"} or args.judge_universities):
             prepare_private_data(None)  # Stop before reading or transmitting private input.
         if args.sanitized_input:
             if args.sheet is not None or args.sheet_index != 0 or args.header_row != 1:
@@ -93,6 +146,12 @@ def main(argv=None):
             result = run_schema(prepared)
         elif args.name == "categories":
             result = run_categories(prepared, args.column[0], args.category)
+        elif args.name == "structured":
+            result = run_structured(
+                prepared if args.sanitized_input else df,
+                field_roles(args.field),
+                judge_universities=args.judge_universities,
+            )
         else:
             result = run_text(df, args.column, enrich=args.enrich, mask_pii=args.mask_pii)
         result.dataframe.attrs.update(df.attrs)
@@ -104,7 +163,14 @@ def main(argv=None):
     except ValidationError:
         print("Error: prepared input does not match the documented JSON contract.")
         return 2
-    except (ModelError, PrivacyNotReady, NotImplementedError, OSError, ValueError) as exc:
+    except (
+        ModelError,
+        PrivacyNotReady,
+        NotImplementedError,
+        OSError,
+        ValueError,
+        zipfile.BadZipFile,
+    ) as exc:
         print(f"Error: {exc}")
         return 2
 

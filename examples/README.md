@@ -26,6 +26,16 @@ uv run --no-project python -m data_cleaning_agent stage categories --sanitized-i
 These are opt-in live model smoke tests. Inspect the stage reports; syntax validation
 does not establish semantic correctness. Tests under `tests/` mock the model and never download weights.
 
+## Structured fields
+
+```bash
+uv run python main.py stage structured --input examples/structured.csv --output outputs/agent2.csv
+```
+
+This runs local rules without Qwen. `--field "consent=boolean"` explicitly selects
+the consent column. See [Agent 2 documentation](../docs/structured-data.md) for role
+policies, university review, and folder/ZIP batching.
+
 ## Prepared input contract
 
 The JSON envelope has exactly `provenance`, `columns`, and `rows`. Provenance is
