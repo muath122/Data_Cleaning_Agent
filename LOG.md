@@ -3,6 +3,18 @@
 Record each logical change, why it was made, checks performed, and remaining limitations.
 Never include applicant values or model output from real data.
 
+## 2026-09-13 — Complete pipeline and KAUST GPU runner
+
+- Added end-to-end CSV/XLSX folder orchestration across all five roles.
+- Added local in-memory identifier masking before Qwen calls and restoration
+  before export; model access remains restricted to localhost.
+- Implemented read-only duplicate, missing-value, email, and phone validation.
+- Added per-sheet cleaned CSVs, JSON audit reports, and an aggregate run summary.
+- Added a Slurm V100 job that installs uv dependencies, builds CUDA llama.cpp,
+  starts the pinned Qwen model, runs `data/`, and shuts the server down.
+- Added an end-to-end regression test that verifies source preservation,
+  privacy restoration, semantic mapping, structured normalization, and text cleanup.
+
 ## PR #4 — Integrate Amirah's structured-data agent
 
 - Merged Amirah's PR ancestry and resolved the requirements conflict by retaining the shared uv-compatible dependencies; removed her unused NumPy import.

@@ -80,7 +80,7 @@ def test_cli_text_and_repeated_output(tmp_path):
     assert main(args) == 2
 
 
-def test_cli_private_model_input_blocked_before_read(tmp_path, capsys):
+def test_cli_missing_private_input_reports_file_error(tmp_path, capsys):
     assert (
         main(
             [
@@ -94,13 +94,11 @@ def test_cli_private_model_input_blocked_before_read(tmp_path, capsys):
         )
         == 2
     )
-    assert "privacy" in capsys.readouterr().out
+    assert "No such file" in capsys.readouterr().out
     assert not list(tmp_path.iterdir())
 
 
-def test_cli_missing_pipeline_and_status(capsys):
-    assert main(["pipeline"]) == 2
-    assert "validation" in capsys.readouterr().out
+def test_cli_status(capsys):
     assert main(["status"]) == 0
 
 

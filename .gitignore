@@ -17,6 +17,7 @@ cleaned_data/
 extracted_data/
 data.zip
 models/
+tools/
 *.gguf
 privacy_vault/
 *.log

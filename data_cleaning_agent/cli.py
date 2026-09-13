@@ -22,11 +22,13 @@ from .structured.batch import process_input
 
 def parser():
     root = argparse.ArgumentParser(
-        description="Run local data-cleaning stages. Full pipeline is unfinished."
+        description="Run the local data-cleaning pipeline or an individual stage."
     )
     commands = root.add_subparsers(dest="command", required=True)
     commands.add_parser("status", help="Show implemented and missing stages")
-    commands.add_parser("pipeline", help="Check full-pipeline readiness (currently fails)")
+    pipeline = commands.add_parser("pipeline", help="Clean every CSV/XLSX table in a file/folder")
+    pipeline.add_argument("--input", type=Path, required=True)
+    pipeline.add_argument("--output-dir", type=Path, required=True)
     stage = commands.add_parser("stage", help="Run one implemented stage")
     stage.add_argument("name", choices=["schema", "structured", "categories", "text"])
     inputs = stage.add_mutually_exclusive_group(required=True)
@@ -100,7 +102,9 @@ def main(argv=None):
             print(json.dumps(STAGE_STATUS, ensure_ascii=False, indent=2))
             return 0
         if args.command == "pipeline":
-            run_pipeline()
+            summary = run_pipeline(args.input, args.output_dir)
+            print(json.dumps(summary, ensure_ascii=False, indent=2))
+            return 0 if summary["failed_tables"] == 0 else 2
         if args.sheet_index < 0 or args.header_row < 1:
             raise ValueError("Sheet index must be nonnegative and header row must be positive")
         if args.command == "batch-structured":
@@ -128,8 +132,6 @@ def main(argv=None):
             raise ValueError("Categories requires exactly one --column and a --category")
         source = args.input or args.sanitized_input
         check_outputs(args.output, args.name, source)
-        if args.input and (args.name not in {"text", "structured"} or args.judge_universities):
-            prepare_private_data(None)  # Stop before reading or transmitting private input.
         if args.sanitized_input:
             if args.sheet is not None or args.sheet_index != 0 or args.header_row != 1:
                 raise ValueError("Sheet and header options apply only to raw table input")
@@ -142,13 +144,14 @@ def main(argv=None):
                 sheet=args.sheet if args.sheet is not None else args.sheet_index,
                 header_row=args.header_row,
             )
+            prepared, _vault = prepare_private_data(df)
         if args.name == "schema":
             result = run_schema(prepared)
         elif args.name == "categories":
             result = run_categories(prepared, args.column[0], args.category)
         elif args.name == "structured":
             result = run_structured(
-                prepared if args.sanitized_input else df,
+                prepared if (args.sanitized_input or args.judge_universities) else df,
                 field_roles(args.field),
                 judge_universities=args.judge_universities,
             )

@@ -3,7 +3,7 @@ import pytest
 
 from data_cleaning_agent.contracts import CategoryReport, SchemaReport
 from data_cleaning_agent.model import ModelError
-from data_cleaning_agent.privacy import PreparedData, PrivacyNotReady, prepare_private_data
+from data_cleaning_agent.privacy import PreparedData, prepare_private_data
 from data_cleaning_agent.stages.categories import run_categories
 from data_cleaning_agent.stages.schema import apply_schema, build_schema_context, run_schema
 from data_cleaning_agent.stages.text import run_text
@@ -193,8 +193,9 @@ def test_text_rejects_target_collisions():
         run_text(pd.DataFrame([["x", "y"]], columns=["same", "same"]), ["same"])
 
 
-def test_private_input_cannot_be_inferred_directly():
-    with pytest.raises(PrivacyNotReady):
-        prepare_private_data(pd.DataFrame())
+def test_private_input_is_masked_locally():
+    prepared, vault = prepare_private_data(pd.DataFrame({"Email": ["a@example.com"]}))
+    assert prepared.rows == [["[PRIVATE_0_0]"]]
+    assert vault.values[(0, 0)] == "a@example.com"
     with pytest.raises(TypeError, match="PreparedData"):
         run_schema(pd.DataFrame())

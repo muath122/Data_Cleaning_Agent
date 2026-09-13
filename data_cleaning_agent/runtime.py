@@ -64,6 +64,8 @@ def server_command(model_path: Path, port: int, context_size: int) -> list[str]:
         str(context_size),
         "--parallel",
         "1",
+        "--n-gpu-layers",
+        os.getenv("QWEN_GPU_LAYERS", "999"),
         "--jinja",
         "--chat-template-kwargs",
         '{"enable_thinking":false}',
