@@ -21,3 +21,5 @@ tools/
 *.gguf
 privacy_vault/
 *.log
+slurm-*.out
+dcgm/
