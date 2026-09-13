@@ -145,7 +145,15 @@ def normalize_phone(value):
 def normalize_email(value):
     if blank(value):
         return value
-    return text(value).replace(" ", "").casefold()
+
+    email = text(value).replace(" ", "")
+
+    if "@" not in email:
+        return email
+
+    local_part, domain_part = email.rsplit("@", 1)
+
+    return f"{local_part}@{domain_part.casefold()}"
 
 
 GENDER_MAP = {
@@ -332,30 +340,219 @@ def looks_boolean_series(series):
         and sum(v in known for v in values) / len(values) >= 0.90
     )
 
+def looks_categorical_series(series):
+    """
+    Detect whether a text column looks categorical.
+
+    Formatting variants are considered the same category
+    when estimating cardinality.
+    """
+    non_null = series.dropna()
+
+    if non_null.empty:
+        return False
+
+    if not (
+        pd.api.types.is_object_dtype(series)
+        or pd.api.types.is_string_dtype(series)
+    ):
+        return False
+
+    values = [
+        text(value)
+        for value in non_null
+        if not blank(value)
+    ]
+
+    if not values:
+        return False
+
+    # Compare using normalized keys rather than raw values.
+    keys = [
+        categorical_key(value)
+        for value in values
+    ]
+
+    unique_count = len(set(keys))
+    total_count = len(keys)
+    unique_ratio = unique_count / total_count
+
+    return (
+        unique_count <= 100
+        and unique_ratio <= 0.30
+    )
+
+
+def categorical_key(value):
+    """
+    Create a comparison-only version of a categorical value.
+
+    The key is used to discover formatting variants.
+    It is NOT written into the final dataset.
+    """
+    if blank(value):
+        return value
+
+    s = text(value).casefold()
+
+    # Treat separators as spaces.
+    s = s.replace("-", " ")
+    s = s.replace("_", " ")
+
+    # Remove repeated whitespace.
+    s = re.sub(r"\s+", " ", s)
+
+    return s.strip()
+
+
+
+def choose_canonical_value(values):
+    """
+    Choose the best representation from values that Agent 2
+    has already determined are formatting variants.
+
+    Preference:
+    1. Most frequently occurring representation.
+    2. If tied, prefer a naturally capitalized representation.
+    3. Otherwise use the first observed representation.
+    """
+    counts = pd.Series(values).value_counts()
+
+    highest_count = counts.max()
+
+    candidates = [
+        value
+        for value, count in counts.items()
+        if count == highest_count
+    ]
+
+    if len(candidates) == 1:
+        return candidates[0]
+
+    for value in candidates:
+        if value == value.title():
+            return value
+
+    return candidates[0]
+
+
+
+
+def build_categorical_map(series):
+    """
+    Build a mapping for obvious formatting variants found
+    inside a categorical column.
+
+    No category names are hard-coded.
+    """
+    groups = {}
+
+    for value in series.dropna():
+        if blank(value):
+            continue
+
+        original = text(value)
+        key = categorical_key(original)
+
+        if key not in groups:
+            groups[key] = []
+
+        groups[key].append(original)
+
+    mapping = {}
+
+    for values in groups.values():
+        unique_values = list(dict.fromkeys(values))
+
+        # Nothing needs fixing if there is only one representation.
+        if len(unique_values) <= 1:
+            continue
+
+        canonical = choose_canonical_value(values)
+
+        for value in unique_values:
+            if value != canonical:
+                mapping[value] = canonical
+
+    return mapping
+
 
 def standardize_structure(df):
     """
     Apply Agent 2's structured-column standardization.
-    Unknown/unrelated columns are preserved unchanged.
+
+    Known structured columns use their dedicated normalizers.
+
+    Unknown text columns may be automatically standardized
+    when they appear to be categorical and contain obvious
+    formatting variants.
+
+    Unknown/unrelated columns are otherwise preserved unchanged.
     """
+
     out = df.copy(deep=True)
     report = []
 
     for column in out.columns:
+
         role = infer_supported_role(column)
 
+        # Detect boolean columns from their values
         if role is None and looks_boolean_series(out[column]):
             role = "boolean"
 
-        # University is handled in a second cross-file pass.
+        # University is handled later in pipeline.py
         if role == "university":
             continue
 
+        # ---------------------------------------------
+        # Unknown column → try categorical normalization
+        # ---------------------------------------------
         if role is None:
+
+            if not looks_categorical_series(out[column]):
+                continue
+
+            category_map = build_categorical_map(out[column])
+
+            if not category_map:
+                continue
+
+            before = out[column].copy()
+
+            out[column] = out[column].map(
+                lambda value: (
+                    category_map.get(text(value), value)
+                    if not blank(value)
+                    else value
+                )
+            )
+
+            changed = int(
+                (
+                    before.fillna("<NA>").astype(str)
+                    != out[column].fillna("<NA>").astype(str)
+                ).sum()
+            )
+
+            report.append(
+                {
+                    "Column": column,
+                    "Role": "categorical_format",
+                    "Values Changed": changed,
+                }
+            )
+
             continue
 
+        # ---------------------------------------------
+        # Known structured column
+        # ---------------------------------------------
         before = out[column].copy()
-        out[column] = out[column].map(NORMALIZERS[role])
+
+        out[column] = out[column].map(
+            NORMALIZERS[role]
+        )
 
         changed = int(
             (
