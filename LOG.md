@@ -29,6 +29,8 @@ Never include applicant values or model output from real data.
   Qwen3.5-2B model to improve structured-output accuracy while staying lightweight.
 - Hardened the final two schema fallbacks (numeric and duplicate generic headers)
   and retry category batches once when the local model emits invalid JSON.
+- Preserve repeated conditional-form questions by adding positional canonical
+  suffixes instead of discarding the entire schema when Qwen proposes a duplicate.
 - Added an end-to-end regression test that verifies source preservation,
   privacy restoration, semantic mapping, structured normalization, and text cleanup.
 

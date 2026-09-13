@@ -68,13 +68,9 @@ def apply_schema(df: pd.DataFrame, report: SchemaReport) -> StageResult:
         counts = {}
         for index, name in enumerate(names):
             counts[name] = counts.get(name, 0) + 1
-            if counts[name] > 1 and report.columns[index].confidence < 0.70:
+            if counts[name] > 1:
                 names[index] = f"{name}_{counts[name]}"
-                result.issues.append({"column_index": index, "rule": "duplicate_source_name"})
-        if len(names) != len(set(names)):
-            raise ModelError(
-                "Schema mapping creates or retains duplicate names; resolve by column index before applying"
-            )
+                result.issues.append({"column_index": index, "rule": "duplicate_canonical_name"})
     result.dataframe.columns = names
     result.details = report.model_dump()
     return result

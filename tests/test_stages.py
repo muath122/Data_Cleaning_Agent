@@ -44,7 +44,6 @@ def test_schema_shuffled_indices_and_empty_columns():
     [
         [column(0, "a", "one")],
         [column(0, "a", "one"), column(0, "a", "two")],
-        [column(0, "a", "same"), column(1, "b", "same")],
         [column(0, "wrong", "one"), column(1, "b", "two")],
         [column(0, "a", None, "empty"), column(1, "b", "two")],
     ],
@@ -54,6 +53,16 @@ def test_schema_rejects_incomplete_or_conflicting_mappings(mappings):
     with pytest.raises(ModelError):
         apply_schema(df, SchemaReport(columns=mappings))
     assert list(df.columns) == ["a", "b"]
+
+
+def test_schema_disambiguates_repeated_semantic_names():
+    df = pd.DataFrame([["x", "y"]], columns=["role branch A", "role branch B"])
+    report = SchemaReport(
+        columns=[column(0, "role branch A", "role"), column(1, "role branch B", "role")]
+    )
+    result = apply_schema(df, report)
+    assert list(result.dataframe.columns) == ["role", "role_2"]
+    assert result.issues[-1]["rule"] == "duplicate_canonical_name"
 
 
 def test_uncertain_schema_preserves_source_name():
