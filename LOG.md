@@ -18,6 +18,8 @@ Never include applicant values or model output from real data.
   cluster run exposed uv's existing-environment guard.
 - Pointed the CUDA build at Ibex's versioned CUDA 12.4.1 software tree after
   confirming `/usr/local/cuda` contains no compiler on compute nodes.
+- Serialized native Excel date/time objects before model validation and removed
+  exception details from summaries after the first data pass exposed that boundary.
 - Added an end-to-end regression test that verifies source preservation,
   privacy restoration, semantic mapping, structured normalization, and text cleanup.
 

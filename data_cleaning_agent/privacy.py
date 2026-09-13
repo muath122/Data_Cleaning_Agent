@@ -3,6 +3,7 @@
 import json
 import re
 from dataclasses import dataclass
+from datetime import date, datetime
 from pathlib import Path
 from typing import Literal
 
@@ -79,6 +80,10 @@ def prepare_private_data(dataframe: pd.DataFrame) -> tuple[PreparedData, Privacy
             if masked != rendered:
                 vault[(row, col)] = value
                 clean.iat[row, col] = masked
+            elif isinstance(value, (datetime, date)):
+                clean.iat[row, col] = value.isoformat()
+            elif not isinstance(value, (str, int, float, bool)):
+                clean.iat[row, col] = rendered
     rows = clean.where(pd.notna(clean), None).values.tolist()
     return PreparedData(
         provenance="locally_pseudonymized",

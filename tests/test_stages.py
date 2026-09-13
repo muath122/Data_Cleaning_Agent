@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pandas as pd
 import pytest
 
@@ -197,5 +199,12 @@ def test_private_input_is_masked_locally():
     prepared, vault = prepare_private_data(pd.DataFrame({"Email": ["a@example.com"]}))
     assert prepared.rows == [["[PRIVATE_0_0]"]]
     assert vault.values[(0, 0)] == "a@example.com"
+
+
+def test_private_preparation_serializes_excel_datetime():
+    prepared, _vault = prepare_private_data(
+        pd.DataFrame({"Timestamp": [datetime(2026, 9, 13, 10, 30)]})
+    )
+    assert prepared.rows == [["2026-09-13T10:30:00"]]
     with pytest.raises(TypeError, match="PreparedData"):
         run_schema(pd.DataFrame())

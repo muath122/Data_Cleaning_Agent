@@ -199,7 +199,14 @@ def run_pipeline(input_path, output_dir, *, model=None) -> dict:
             )
         except Exception as exc:
             summary["failed_tables"] += 1
-            summary["tables"].append({"source_file": path.name, "sheet": sheet, "error": str(exc)})
+            summary["tables"].append(
+                {
+                    "source_file": path.name,
+                    "sheet": sheet,
+                    "error": "table_processing_failed",
+                    "error_type": type(exc).__name__,
+                }
+            )
     summary["processed_tables"] = sum("output" in table for table in summary["tables"])
     summary["total_rows"] = sum(table.get("rows", 0) for table in summary["tables"])
     (output / "summary.json").write_text(
