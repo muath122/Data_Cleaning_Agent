@@ -65,9 +65,16 @@ def apply_schema(df: pd.DataFrame, report: SchemaReport) -> StageResult:
                 {"column_index": i, "before": str(df.columns[i]), "after": names[i]}
             )
     if len(names) != len(set(names)):
-        raise ModelError(
-            "Schema mapping creates or retains duplicate names; resolve by column index before applying"
-        )
+        counts = {}
+        for index, name in enumerate(names):
+            counts[name] = counts.get(name, 0) + 1
+            if counts[name] > 1 and report.columns[index].confidence < 0.70:
+                names[index] = f"{name}_{counts[name]}"
+                result.issues.append({"column_index": index, "rule": "duplicate_source_name"})
+        if len(names) != len(set(names)):
+            raise ModelError(
+                "Schema mapping creates or retains duplicate names; resolve by column index before applying"
+            )
     result.dataframe.columns = names
     result.details = report.model_dump()
     return result
@@ -75,6 +82,8 @@ def apply_schema(df: pd.DataFrame, report: SchemaReport) -> StageResult:
 
 def _fallback_column(item):
     name = re.sub(r"[^a-z0-9]+", "_", item["column_name"].casefold()).strip("_")
+    if not name or not name[0].isalpha():
+        name = f"column_{item['column_index'] + 1}"
     return ColumnMapping(
         **{
             "column_index": item["column_index"],

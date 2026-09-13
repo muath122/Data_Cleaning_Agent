@@ -6,7 +6,7 @@ from typing import get_args
 import pandas as pd
 
 from ..contracts import Category, CategoryReport, StageResult
-from ..model import LocalModel
+from ..model import LocalModel, ModelError
 from ..privacy import PreparedData
 
 
@@ -40,9 +40,22 @@ def run_categories(prepared: PreparedData, column: str, category: str, model=Non
     client = model or LocalModel()
     for start in range(0, len(eligible), 10):
         batch = eligible[start : start + 10]
-        report = client.analyze(
-            "categories", {"column": column, "category": category, "values": batch}, CategoryReport
-        )
+        report = None
+        for _attempt in range(2):
+            try:
+                report = client.analyze(
+                    "categories",
+                    {"column": column, "category": category, "values": batch},
+                    CategoryReport,
+                )
+                break
+            except ModelError:
+                continue
+        if report is None:
+            result.issues.append(
+                {"column_index": position, "rule": "category_batch_failed", "count": len(batch)}
+            )
+            continue
         report = CategoryReport.model_validate(report.model_dump())
         returned = set()
         for item in report.results:

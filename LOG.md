@@ -27,6 +27,8 @@ Never include applicant values or model output from real data.
   rewriting strict echo fields.
 - Replaced the 0.77 GB IQ2 model with the 1.28 GB Q4_K_M build of the same
   Qwen3.5-2B model to improve structured-output accuracy while staying lightweight.
+- Hardened the final two schema fallbacks (numeric and duplicate generic headers)
+  and retry category batches once when the local model emits invalid JSON.
 - Added an end-to-end regression test that verifies source preservation,
   privacy restoration, semantic mapping, structured normalization, and text cleanup.
 
