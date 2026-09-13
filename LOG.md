@@ -16,6 +16,8 @@ Never include applicant values or model output from real data.
   rejected the general GPU partitions; the queue has a two-hour limit.
 - Made repeated submissions reuse the existing uv environment after the first
   cluster run exposed uv's existing-environment guard.
+- Pointed the CUDA build at Ibex's versioned CUDA 12.4.1 software tree after
+  confirming `/usr/local/cuda` contains no compiler on compute nodes.
 - Added an end-to-end regression test that verifies source preservation,
   privacy restoration, semantic mapping, structured normalization, and text cleanup.
 
