@@ -45,3 +45,5 @@ Deterministic Python performs phone, email, gender, ID, academic-level,
 timestamp, attendance, and boolean normalization. Uncertain values remain in
 place and appear in review reports. See [LOG.md](LOG.md) for implementation
 history and `prompts/` for each role contract.
+
+The latest real-data GPU results are summarized in [ANALYSIS_REPORT.md](ANALYSIS_REPORT.md).

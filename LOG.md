@@ -31,6 +31,9 @@ Never include applicant values or model output from real data.
   and retry category batches once when the local model emits invalid JSON.
 - Preserve repeated conditional-form questions by adding positional canonical
   suffixes instead of discarding the entire schema when Qwen proposes a duplicate.
+- Final Ibex verification: job `51859090` completed 17 nonempty sheets and 2,334
+  rows with no failed tables or whole-schema fallbacks; aggregate findings are in
+  `ANALYSIS_REPORT.md`.
 - Added an end-to-end regression test that verifies source preservation,
   privacy restoration, semantic mapping, structured normalization, and text cleanup.
 
