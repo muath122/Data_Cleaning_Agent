@@ -120,7 +120,8 @@ def run_table(df: pd.DataFrame, *, model=None) -> tuple[pd.DataFrame, list[Stage
     current = structured.dataframe
     stages = [schema, structured]
     for column in list(current.columns):
-        category = CATEGORY_NAMES.get(re.sub(r"_\d+$", "", str(column)))
+        base = re.sub(r"_\d+$", "", str(column))
+        category = next((value for key, value in CATEGORY_NAMES.items() if key in base), None)
         if not category:
             continue
         prepared, vault = prepare_private_data(current)

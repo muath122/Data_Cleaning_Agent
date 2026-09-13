@@ -22,7 +22,8 @@ uv run python -m data_cleaning_agent pipeline --input data --output-dir outputs/
 ```
 
 `start.py` creates `.venv`, installs `requirements.txt`, downloads the pinned
-`Qwen3.5-2B-UD-IQ2_XXS.gguf` when missing, and serves it only on localhost.
+`Qwen3.5-2B-Q4_K_M.gguf` when missing, and serves it only on localhost. The
+4-bit file is about 1.28 GB and was selected for reliable structured output.
 The pipeline accepts CSV files, Excel files, or a folder containing both. Each
 nonempty Excel sheet becomes a cleaned CSV plus a JSON audit report.
 

@@ -144,11 +144,11 @@ def test_categories_mapping_ambiguity_and_multiselect():
     }
 
 
-def test_categories_invalid_later_batch_applies_nothing():
+def test_categories_missing_batch_items_are_flagged():
     data = prepared([str(i) for i in range(21)])
     before = data.model_dump()
-    with pytest.raises(ModelError):
-        run_categories(data, "التخصص", "Major", FakeCategories(bad_batch=True))
+    result = run_categories(data, "التخصص", "Major", FakeCategories(bad_batch=True))
+    assert sum(issue["rule"] == "missing_category_mapping" for issue in result.issues) == 10
     assert data.model_dump() == before
 
 

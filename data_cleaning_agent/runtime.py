@@ -11,8 +11,8 @@ from huggingface_hub.errors import LocalEntryNotFoundError
 
 ROOT = Path(__file__).resolve().parent.parent
 MODEL_REPO = "unsloth/Qwen3.5-2B-GGUF"
-MODEL_FILE = "Qwen3.5-2B-UD-IQ2_XXS.gguf"
-MODEL_REVISION = "f6d5376be1edb4d416d56da11e5397a961aca8ae"
+MODEL_FILE = "Qwen3.5-2B-Q4_K_M.gguf"
+MODEL_REVISION = "71370273a6eb90707b83b71a09d64fb99c288639"
 
 
 def ensure_model(*, offline=False) -> Path:

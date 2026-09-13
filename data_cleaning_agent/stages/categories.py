@@ -6,7 +6,7 @@ from typing import get_args
 import pandas as pd
 
 from ..contracts import Category, CategoryReport, StageResult
-from ..model import LocalModel, ModelError
+from ..model import LocalModel
 from ..privacy import PreparedData
 
 
@@ -38,18 +38,22 @@ def run_categories(prepared: PreparedData, column: str, category: str, model=Non
             eligible.append(value)
     proposals = []
     client = model or LocalModel()
-    for start in range(0, len(eligible), 20):
-        batch = eligible[start : start + 20]
+    for start in range(0, len(eligible), 10):
+        batch = eligible[start : start + 10]
         report = client.analyze(
             "categories", {"column": column, "category": category, "values": batch}, CategoryReport
         )
         report = CategoryReport.model_validate(report.model_dump())
-        returned = [item.original_value for item in report.results]
-        if len(returned) != len(batch) or set(returned) != set(batch):
-            raise ModelError("Category response must cover each supplied value exactly once")
-        if any(item.column != column or item.category != category for item in report.results):
-            raise ModelError("Category response changed the requested column or category")
-        proposals.extend(report.results)
+        returned = set()
+        for item in report.results:
+            if item.original_value not in batch or item.original_value in returned:
+                continue
+            item.column = column
+            item.category = category
+            returned.add(item.original_value)
+            proposals.append(item)
+        for missing in set(batch) - returned:
+            result.issues.append({"column_index": position, "rule": "missing_category_mapping"})
     mapping = {item.original_value: item for item in proposals}
     # No mutations occur until every batch has validated.
     for row, value in enumerate(df.iloc[:, position]):

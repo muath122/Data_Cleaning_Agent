@@ -22,6 +22,11 @@ Never include applicant values or model output from real data.
   exception details from summaries after the first data pass exposed that boundary.
 - Load CUDA runtime libraries on every submission, including runs that reuse the
   cached llama.cpp executable.
+- Batched wide schemas, reconciled safe index-based model responses, and reduced
+  category batches after the full GPU audit showed the 2-bit model dropping or
+  rewriting strict echo fields.
+- Replaced the 0.77 GB IQ2 model with the 1.28 GB Q4_K_M build of the same
+  Qwen3.5-2B model to improve structured-output accuracy while staying lightweight.
 - Added an end-to-end regression test that verifies source preservation,
   privacy restoration, semantic mapping, structured normalization, and text cleanup.
 
