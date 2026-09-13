@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 #SBATCH --job-name=data-cleaner
-#SBATCH --partition=gpu
+#SBATCH --account=pi-albarass
+#SBATCH --partition=debug
 #SBATCH --gres=gpu:v100:1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=32G

@@ -12,6 +12,8 @@ Never include applicant values or model output from real data.
 - Added per-sheet cleaned CSVs, JSON audit reports, and an aggregate run summary.
 - Added a Slurm V100 job that installs uv dependencies, builds CUDA llama.cpp,
   starts the pinned Qwen model, runs `data/`, and shuts the server down.
+- Configured the job for the account's permitted `debug` GPU queue after Ibex
+  rejected the general GPU partitions; the queue has a two-hour limit.
 - Added an end-to-end regression test that verifies source preservation,
   privacy restoration, semantic mapping, structured normalization, and text cleanup.
 
