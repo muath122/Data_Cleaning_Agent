@@ -14,6 +14,8 @@ Never include applicant values or model output from real data.
   starts the pinned Qwen model, runs `data/`, and shuts the server down.
 - Configured the job for the account's permitted `debug` GPU queue after Ibex
   rejected the general GPU partitions; the queue has a two-hour limit.
+- Made repeated submissions reuse the existing uv environment after the first
+  cluster run exposed uv's existing-environment guard.
 - Added an end-to-end regression test that verifies source preservation,
   privacy restoration, semantic mapping, structured normalization, and text cleanup.
 

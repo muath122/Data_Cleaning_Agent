@@ -11,7 +11,9 @@
 set -euo pipefail
 cd "${SLURM_SUBMIT_DIR:?Submit this script with sbatch from the repository root}"
 
-uv venv --python 3.11 .venv
+if [[ ! -x .venv/bin/python ]]; then
+  uv venv --python 3.11 .venv
+fi
 uv pip install --python .venv/bin/python -r requirements.txt
 
 LLAMA_ROOT="$PWD/tools/llama.cpp"
