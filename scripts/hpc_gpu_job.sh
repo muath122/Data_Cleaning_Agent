@@ -17,10 +17,10 @@ fi
 uv pip install --python .venv/bin/python -r requirements.txt
 
 LLAMA_ROOT="$PWD/tools/llama.cpp"
+CUDA_ROOT="/sw/rl9g/cuda/12.4.1/rl9_binary"
+export PATH="$CUDA_ROOT/bin:$PATH"
+export LD_LIBRARY_PATH="$CUDA_ROOT/lib64:${LD_LIBRARY_PATH:-}"
 if [[ ! -x "$LLAMA_ROOT/build/bin/llama-server" ]]; then
-  CUDA_ROOT="/sw/rl9g/cuda/12.4.1/rl9_binary"
-  export PATH="$CUDA_ROOT/bin:$PATH"
-  export LD_LIBRARY_PATH="$CUDA_ROOT/lib64:${LD_LIBRARY_PATH:-}"
   mkdir -p "$PWD/tools"
   if [[ ! -d "$LLAMA_ROOT/.git" ]]; then
     git clone --depth 1 https://github.com/ggml-org/llama.cpp.git "$LLAMA_ROOT"

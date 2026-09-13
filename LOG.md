@@ -20,6 +20,8 @@ Never include applicant values or model output from real data.
   confirming `/usr/local/cuda` contains no compiler on compute nodes.
 - Serialized native Excel date/time objects before model validation and removed
   exception details from summaries after the first data pass exposed that boundary.
+- Load CUDA runtime libraries on every submission, including runs that reuse the
+  cached llama.cpp executable.
 - Added an end-to-end regression test that verifies source preservation,
   privacy restoration, semantic mapping, structured normalization, and text cleanup.
 
