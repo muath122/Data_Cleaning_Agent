@@ -1,7 +1,12 @@
 import pandas as pd
 
 from data_cleaning_agent.contracts import CategoryReport, SchemaReport
-from data_cleaning_agent.pipeline import _remove_embedded_headers, run_pipeline
+from data_cleaning_agent.pipeline import (
+    _remove_embedded_headers,
+    _remove_padding_rows,
+    _trim_scalar_whitespace,
+    run_pipeline,
+)
 
 
 class PipelineModel:
@@ -78,3 +83,23 @@ def test_repeated_form_headers_are_removed_without_matching_normal_rows():
     assert cleaned.iloc[0].tolist() == ["Female", "0500000000", "UJ", "CS"]
     assert stage.details["removed_rows"] == [0]
     assert not stage.issues
+
+
+def test_padding_rows_are_removed_and_scalar_whitespace_is_trimmed():
+    frame = pd.DataFrame(
+        {
+            "name": ["  Ahmed  ", None, None, None],
+            "email": ["a@example.com ", None, None, None],
+            "day_1": [True, False, "Absent", None],
+        }
+    )
+    cleaned, padding = _remove_padding_rows(frame)
+    cleaned, whitespace = _trim_scalar_whitespace(cleaned)
+    assert len(cleaned) == 1
+    assert cleaned.iloc[0].tolist() == ["Ahmed", "a@example.com", True]
+    assert padding.details["reasons"] == {
+        1: "status_only_padding",
+        2: "status_only_padding",
+        3: "blank_row",
+    }
+    assert len(whitespace.changes) == 2

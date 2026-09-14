@@ -127,6 +127,11 @@ def test_stage_preserves_columns_rows_blanks_and_unrelated_values():
     assert not result.report()["pipeline_validated"]
 
 
+@pytest.mark.parametrize("value,expected", [("Male | رجل", "Male"), ("Female | أنثى", "Female")])
+def test_bilingual_gender_labels(value, expected):
+    assert normalize_value(value, "gender").value == expected
+
+
 def test_explicit_roles_and_no_content_based_boolean_guess():
     df = pd.DataFrame({"consent?": ["yes", "no"], "phone": ["0551234567", None]})
     result = run_structured(df, {"consent?": "boolean"})

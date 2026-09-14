@@ -100,31 +100,36 @@ def run_schema(prepared: PreparedData, model=None, *, batch_size=12) -> StageRes
     context = build_schema_context(df)
     client = model or LocalModel()
     mappings, batch_issues = [], []
-    for start in range(0, len(context), batch_size):
-        batch = context[start : start + batch_size]
-        expected = {item["column_index"]: item for item in batch}
+
+    def request(batch):
         try:
-            response = client.analyze("schema", batch, SchemaReport)
-            returned = {}
+            return client.analyze("schema", batch, SchemaReport)
+        except ModelError:
+            return None
+
+    def accepted(batch, response):
+        expected = {item["column_index"]: item for item in batch}
+        returned = {}
+        if response is not None:
             for column in response.columns:
                 if column.column_index in expected and column.column_index not in returned:
                     column.original_name = expected[column.column_index]["column_name"]
                     returned[column.column_index] = column
-            for index, item in expected.items():
-                if index in returned:
-                    mappings.append(returned[index])
-                else:
-                    mappings.append(_fallback_column(item))
-                    batch_issues.append({"column_index": index, "rule": "missing_schema_mapping"})
-        except ModelError as exc:
-            mappings.extend(_fallback_column(item) for item in batch)
-            batch_issues.append(
-                {
-                    "column_indices": list(expected),
-                    "rule": "schema_batch_failed",
-                    "message": str(exc),
-                }
-            )
+        return expected, returned
+
+    for start in range(0, len(context), batch_size):
+        batch = context[start : start + batch_size]
+        expected, returned = accepted(batch, request(batch))
+        for index, item in expected.items():
+            if index in returned:
+                mappings.append(returned[index])
+                continue
+            _, retried = accepted([item], request([item]))
+            if index in retried:
+                mappings.append(retried[index])
+            else:
+                mappings.append(_fallback_column(item))
+                batch_issues.append({"column_index": index, "rule": "missing_schema_mapping"})
     seen = {}
     for column in sorted(mappings, key=lambda item: item.column_index):
         if not column.canonical_name:

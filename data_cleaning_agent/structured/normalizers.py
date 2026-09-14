@@ -120,6 +120,8 @@ GENDER_MAP = {
     "man": "Male",
     "ذكر": "Male",
     "رجل": "Male",
+    "male | رجل": "Male",
+    "male|رجل": "Male",
     "female": "Female",
     "f": "Female",
     "woman": "Female",
@@ -127,6 +129,8 @@ GENDER_MAP = {
     "أنثى": "Female",
     "امرأة": "Female",
     "امراه": "Female",
+    "female | أنثى": "Female",
+    "female|أنثى": "Female",
 }
 
 

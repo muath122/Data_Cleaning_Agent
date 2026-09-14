@@ -126,3 +126,11 @@ Never include applicant values or model output from real data.
 - Live inference remains untested here because `llama-server` is not installed. Startup reports the prerequisite and retains cached weights.
 - Windows/Linux CI is configured, but its remote status could not be read: the GitHub connector returned 404 for this repository's Actions endpoint.
 - All changes were committed and pushed in logical increments; real inputs, generated outputs, and model weights remain outside Git.
+
+## 2026-09-14 — Dataset edge-case cleanup
+
+- Removed fully blank rows and false/absent-only spreadsheet padding when no participant identity is present.
+- Trimmed surrounding whitespace in scalar cells and normalized bilingual gender labels.
+- Expanded the reviewed knowledge base to v0.3 with approved university and major aliases found in the 17-table audit.
+- Normalized comma, semicolon, newline, and pipe-separated category lists item by item while preserving order; slash compounds such as UI/UX remain intact.
+- Added individual retries when Qwen omits schema columns or category values from a batch.

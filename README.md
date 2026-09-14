@@ -26,10 +26,12 @@ data_cleaning_agent pipeline --input data --output-dir outputs/local-run`.
 The pipeline accepts CSV files, Excel files, or a folder containing both. Each
 nonempty Excel sheet becomes a cleaned CSV plus a JSON audit report.
 Known university, major, and committee aliases come from
-`knowledge_base/knowledge_base_v0.2.json` before Qwen reviews unknown values.
+`knowledge_base/knowledge_base_v0.3.json` before Qwen reviews unknown values.
 Cleaning keeps the source column count and records missing answers in the audit
-report instead of adding helper columns. Set `DATA_CLEANING_KNOWLEDGE_BASE` to use
-another reviewed JSON knowledge base.
+report instead of adding helper columns. Blank spreadsheet padding and rows that
+only contain absent/false attendance flags are removed. Multi-value categories
+are normalized item by item and kept in their original order. Set
+`DATA_CLEANING_KNOWLEDGE_BASE` to use another reviewed JSON knowledge base.
 
 See the public, invented-data showcase at
 **https://muath122.github.io/Data_Cleaning_Agent/**. It contains no participant data.

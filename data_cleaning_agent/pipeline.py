@@ -52,6 +52,12 @@ HEADER_ALIASES = {
     "university_id": {"university id", "student id", "الرقم الجامعي"},
 }
 
+IDENTITY_COLUMN = re.compile(
+    r"(?:name|email|phone|university_id|student_id|(?:^|_)id(?:_|$)|الاسم|البريد|الجوال|الرقم)",
+    re.I,
+)
+PADDING_VALUES = {"false", "absent"}
+
 
 def _header_key(value) -> str:
     return re.sub(r"[^\w\u0600-\u06ff]+", " ", str(value).casefold()).strip()
@@ -82,6 +88,59 @@ def _remove_embedded_headers(df: pd.DataFrame) -> tuple[pd.DataFrame, StageResul
             }
         )
     result.details = {"removed_rows": remove}
+    return result.dataframe, result
+
+
+def _remove_padding_rows(df: pd.DataFrame) -> tuple[pd.DataFrame, StageResult]:
+    """Remove blank and status-only spreadsheet padding approved by the project owner."""
+    result = StageResult(df.copy(deep=True), "padding_rows")
+    identity_positions = [
+        i for i, column in enumerate(df.columns) if IDENTITY_COLUMN.search(str(column))
+    ]
+    remove = []
+    reasons = {}
+    for row_index, row in df.iterrows():
+        values = [str(value).strip() for value in row if not pd.isna(value) and str(value).strip()]
+        if not values:
+            remove.append(row_index)
+            reasons[row_index] = "blank_row"
+            continue
+        identity_blank = all(
+            pd.isna(row.iloc[i]) or not str(row.iloc[i]).strip() for i in identity_positions
+        )
+        if identity_blank and all(value.casefold() in PADDING_VALUES for value in values):
+            remove.append(row_index)
+            reasons[row_index] = "status_only_padding"
+    if remove:
+        result.dataframe = df.drop(index=remove).reset_index(drop=True)
+        counts = {reason: list(reasons.values()).count(reason) for reason in set(reasons.values())}
+        result.changes.append(
+            {"rule": "padding_rows_removed", "count": len(remove), "reason_counts": counts}
+        )
+    result.details = {"removed_rows": remove, "reasons": reasons}
+    return result.dataframe, result
+
+
+def _trim_scalar_whitespace(df: pd.DataFrame) -> tuple[pd.DataFrame, StageResult]:
+    result = StageResult(df.copy(deep=True), "whitespace")
+    for column_index in range(len(df.columns)):
+        result.dataframe.isetitem(
+            column_index, result.dataframe.iloc[:, column_index].astype(object).copy()
+        )
+        for row_index, value in enumerate(df.iloc[:, column_index]):
+            if not isinstance(value, str):
+                continue
+            trimmed = value.strip()
+            if trimmed != value:
+                result.dataframe.iat[row_index, column_index] = trimmed
+                result.changes.append(
+                    {
+                        "row_index": row_index,
+                        "column_index": column_index,
+                        "before": value,
+                        "after": trimmed,
+                    }
+                )
     return result.dataframe, result
 
 
@@ -169,10 +228,12 @@ def run_table(
     schema = _schema_raw(df, client)
     current = schema.dataframe
     current, embedded_headers = _remove_embedded_headers(current)
+    current, padding_rows = _remove_padding_rows(current)
+    current, whitespace = _trim_scalar_whitespace(current)
     notify("structured")
     structured = run_structured(current)
     current = structured.dataframe
-    stages = [schema, embedded_headers, structured]
+    stages = [schema, embedded_headers, padding_rows, whitespace, structured]
     for column in list(current.columns):
         base = re.sub(r"_\d+$", "", str(column))
         category = CATEGORY_NAMES.get(base)

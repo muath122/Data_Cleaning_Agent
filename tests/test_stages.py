@@ -140,17 +140,15 @@ def test_categories_mapping_ambiguity_and_multiselect():
         "Computer Science",
         "Computer Science",
         "ambiguous",
-        "Python, Java",
+        "Python; Java",
         None,
         "Computer Science",
     ]
     assert result.dataframe["other"].tolist() == ["unchanged"] * 6
     assert data.rows[0][0] == "علوم الحاسب"
-    assert len(client.calls) == 1 and client.calls[0]["values"] == ["ambiguous"]
-    assert {issue["rule"] for issue in result.issues} == {
-        "uncertain_category",
-        "unsupported_scalar_value",
-    }
+    assert len(client.calls) == 1 and client.calls[0]["values"] == ["ambiguous", "Python", "Java"]
+    assert {issue["rule"] for issue in result.issues} == {"uncertain_category"}
+    assert result.details["multi_value_inputs"] == 1
 
 
 def test_categories_use_knowledge_base_before_model():
@@ -191,9 +189,34 @@ def test_categories_missing_items_are_flagged():
     before = data.model_dump()
     client = FakeCategories(bad_batch=True)
     result = run_categories(data, "التخصص", "Major", client)
-    assert sum(issue["rule"] == "missing_category_mapping" for issue in result.issues) == 10
-    assert len(client.calls) == 3
+    assert not any(issue["rule"] == "missing_category_mapping" for issue in result.issues)
+    assert len(client.calls) == 10
     assert data.model_dump() == before
+
+
+def test_schema_retries_missing_columns_individually():
+    class PartialSchema:
+        def __init__(self):
+            self.calls = []
+
+        def analyze(self, _role, payload, _response_type):
+            self.calls.append(payload)
+            selected = payload[:1] if len(payload) > 1 else payload
+            return SchemaReport(
+                columns=[
+                    column(
+                        item["column_index"], item["column_name"], f"field_{item['column_index']}"
+                    )
+                    for item in selected
+                ]
+            )
+
+    data = PreparedData(provenance="synthetic", columns=["A", "B", "C"], rows=[[1, 2, 3]])
+    client = PartialSchema()
+    result = run_schema(data, client)
+    assert list(result.dataframe.columns) == ["field_0", "field_1", "field_2"]
+    assert len(client.calls) == 3
+    assert not result.issues
 
 
 def test_text_preserves_language_short_answers_and_originals():
