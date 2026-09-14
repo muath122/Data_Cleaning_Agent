@@ -103,14 +103,22 @@ def run_categories(prepared: PreparedData, column: str, category: str, model=Non
                     "confidence": item.confidence,
                 }
             )
-        elif item.canonical_value != value:
-            result.dataframe.iat[row, position] = item.canonical_value
+        else:
+            # A model may return another alias; enforce the reviewed canonical form
+            # at the final application boundary.
+            proposed = canonical_value(item.canonical_value, category) or item.canonical_value
+            if proposed == value:
+                continue
+            result.dataframe.iat[row, position] = proposed
             result.changes.append(
                 {
                     "row_index": row,
                     "column_index": position,
                     "before": value,
-                    "after": item.canonical_value,
+                    "after": proposed,
+                    "source": "model_and_knowledge_base"
+                    if proposed != item.canonical_value
+                    else "model",
                 }
             )
     result.details = {

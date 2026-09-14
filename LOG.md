@@ -9,6 +9,8 @@ Never include applicant values or model output from real data.
   deterministic step before model suggestions.
 - Unified case, spacing, Arabic spelling variants, and known abbreviations while
   leaving unknown categories unchanged for review.
+- Canonicalize accepted model suggestions again at the output boundary so Qwen
+  cannot reintroduce a known alias after deterministic matching.
 - Removed repeated form-header rows embedded inside combined worksheets.
 - Changed the full pipeline's text cleanup to update its selected columns in
   place; missing/placeholder status remains in the audit report without adding

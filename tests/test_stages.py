@@ -164,6 +164,28 @@ def test_categories_use_knowledge_base_before_model():
     assert result.details["knowledge_base_matches"] == 4
 
 
+def test_model_alias_is_canonicalized_before_application():
+    class AliasModel:
+        def analyze(self, _role, payload, _response_type):
+            return CategoryReport(
+                results=[
+                    {
+                        "original_value": payload["values"][0],
+                        "column": payload["column"],
+                        "category": payload["category"],
+                        "canonical_value": "Jeddah University",
+                        "confidence": 0.95,
+                        "status": "mapped",
+                        "reasoning": "synthetic alias proposal",
+                    }
+                ]
+            )
+
+    data = PreparedData(provenance="synthetic", columns=["university"], rows=[["Jeddah Uni"]])
+    result = run_categories(data, "university", "University", AliasModel())
+    assert result.dataframe.at[0, "university"] == "University of Jeddah"
+
+
 def test_categories_missing_items_are_flagged():
     data = prepared([str(i) for i in range(21)])
     before = data.model_dump()
