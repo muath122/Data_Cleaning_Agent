@@ -112,10 +112,15 @@ def _schema_raw(df: pd.DataFrame, model) -> StageResult:
         return _fallback_schema(df, str(exc))
 
 
-def run_table(df: pd.DataFrame, *, model=None) -> tuple[pd.DataFrame, list[StageResult]]:
+def run_table(
+    df: pd.DataFrame, *, model=None, progress=None
+) -> tuple[pd.DataFrame, list[StageResult]]:
+    notify = progress or (lambda _stage: None)
     client = model or LocalModel()
+    notify("schema")
     schema = _schema_raw(df, client)
     current = schema.dataframe
+    notify("structured")
     structured = run_structured(current)
     current = structured.dataframe
     stages = [schema, structured]
@@ -125,6 +130,7 @@ def run_table(df: pd.DataFrame, *, model=None) -> tuple[pd.DataFrame, list[Stage
         if not category:
             continue
         prepared, vault = prepare_private_data(current)
+        notify("categories")
         try:
             category_result = run_categories(prepared, column, category, model=client)
             category_result.dataframe = restore_identities(category_result.dataframe, vault)
@@ -144,22 +150,37 @@ def run_table(df: pd.DataFrame, *, model=None) -> tuple[pd.DataFrame, list[Stage
         if item.get("column_type") == "free_text" and item["column_index"] < len(current.columns)
     ]
     if text_columns:
+        notify("text")
         text_result = run_text(current, list(dict.fromkeys(text_columns)))
     else:
         text_result = StageResult(current.copy(deep=True), "text")
         text_result.details = {"selected_columns": [], "reason": "none detected"}
     current = text_result.dataframe
     stages.append(text_result)
+    notify("validation")
     validation = run_validation(current)
     stages.append(validation)
     return current, stages
 
 
-def run_pipeline(input_path, output_dir, *, model=None) -> dict:
+def run_pipeline(input_path, output_dir, *, model=None, progress=None) -> dict:
     output = Path(output_dir)
     output.mkdir(parents=True, exist_ok=False)
     summary = {"tables": [], "skipped_empty_sheets": 0, "failed_tables": 0}
-    for path, sheet in discover_tables(input_path):
+    tables = list(discover_tables(input_path))
+    total = len(tables)
+    for table_index, (path, sheet) in enumerate(tables):
+        if progress:
+            progress(
+                {
+                    "event": "table",
+                    "table_index": table_index,
+                    "total_tables": total,
+                    "file": path.name,
+                    "sheet": sheet,
+                    "stage": "reading",
+                }
+            )
         try:
             df = read_table(path, sheet=sheet or 0)
         except ValueError as exc:
@@ -169,7 +190,24 @@ def run_pipeline(input_path, output_dir, *, model=None) -> dict:
             raise
         name = _safe_name(path, sheet)
         try:
-            cleaned, stages = run_table(df, model=model)
+            cleaned, stages = run_table(
+                df,
+                model=model,
+                progress=(
+                    lambda stage, i=table_index, p=path, s=sheet: progress(
+                        {
+                            "event": "stage",
+                            "table_index": i,
+                            "total_tables": total,
+                            "file": p.name,
+                            "sheet": s,
+                            "stage": stage,
+                        }
+                    )
+                )
+                if progress
+                else None,
+            )
             data_path = output / f"{name}.cleaned.csv"
             cleaned.to_csv(data_path, index=False, encoding="utf-8-sig")
             report = {
@@ -213,4 +251,8 @@ def run_pipeline(input_path, output_dir, *, model=None) -> dict:
     (output / "summary.json").write_text(
         json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8"
     )
+    if progress:
+        progress(
+            {"event": "complete", "table_index": total, "total_tables": total, "stage": "complete"}
+        )
     return summary

@@ -15,17 +15,19 @@ Install [uv](https://docs.astral.sh/uv/) and a recent
 python start.py
 ```
 
-In a second terminal:
-
-```bash
-uv run python -m data_cleaning_agent pipeline --input data --output-dir outputs/local-run
-```
+Open **http://127.0.0.1:7860**, drop in CSV/XLSX files, follow the five cleaning
+stages, review the changes, and download the cleaned tables. The source files are
+never overwritten. Command-line users can run `uv run python -m
+data_cleaning_agent pipeline --input data --output-dir outputs/local-run`.
 
 `start.py` creates `.venv`, installs `requirements.txt`, downloads the pinned
 `Qwen3.5-2B-Q4_K_M.gguf` when missing, and serves it only on localhost. The
 4-bit file is about 1.28 GB and was selected for reliable structured output.
 The pipeline accepts CSV files, Excel files, or a folder containing both. Each
 nonempty Excel sheet becomes a cleaned CSV plus a JSON audit report.
+
+See the public, invented-data showcase at
+**https://muath122.github.io/Data_Cleaning_Agent/**. It contains no participant data.
 
 ## Run on KAUST Ibex with a GPU
 
@@ -46,4 +48,4 @@ timestamp, attendance, and boolean normalization. Uncertain values remain in
 place and appear in review reports. See [LOG.md](LOG.md) for implementation
 history and `prompts/` for each role contract.
 
-The latest real-data GPU results are summarized in [ANALYSIS_REPORT.md](ANALYSIS_REPORT.md).
+The latest GPU results are summarized in [ANALYSIS_REPORT.md](ANALYSIS_REPORT.md).

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Sift — Local Data Cleaner</title>
+  <link rel="stylesheet" href="/assets/app.css">
+</head>
+<body>
+  <div class="ambient ambient-a"></div><div class="ambient ambient-b"></div>
+  <header><a class="brand" href="/"><span class="brand-mark">S</span><span>Sift</span></a><span class="local-pill"><i></i> Runs locally</span></header>
+  <main>
+    <section class="hero" id="upload-view">
+      <div class="eyebrow">QWEN 3.5 · PRIVACY FIRST</div>
+      <h1>Turn messy forms into<br><em>useful data.</em></h1>
+      <p>Drop CSV or Excel exports. Sift understands the schema, standardizes values, cleans text, and leaves uncertain decisions for you.</p>
+      <form id="upload-form">
+        <label class="dropzone" id="dropzone">
+          <input id="files" type="file" accept=".csv,.xlsx" multiple>
+          <span class="upload-icon"><svg viewBox="0 0 24 24"><path d="M12 16V4m0 0 4 4m-4-4L8 8M5 15v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3"/></svg></span>
+          <strong>Drop your files here</strong><span>or click to browse · CSV and XLSX · up to 100 MB each</span>
+        </label>
+        <div class="file-list" id="file-list"></div>
+        <button class="primary" id="run-button" disabled><span>Clean my data</span><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button>
+      </form>
+      <div class="privacy-note"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg><span>Your files stay on this computer. Direct identifiers are masked before the local model sees them.</span></div>
+    </section>
+
+    <section class="process hidden" id="process-view">
+      <div class="eyebrow">CLEANING IN PROGRESS</div><h2>Making sense of your data.</h2>
+      <p id="current-file">Preparing your files…</p>
+      <div class="progress-shell"><div class="progress-bar" id="progress-bar"></div></div>
+      <div class="progress-meta"><span id="progress-label">Starting</span><strong id="progress-value">0%</strong></div>
+      <div class="stages" id="stages">
+        <div data-stage="schema"><b>01</b><span><strong>Schema</strong><small>Understand columns</small></span><i></i></div>
+        <div data-stage="structured"><b>02</b><span><strong>Structure</strong><small>Standardize values</small></span><i></i></div>
+        <div data-stage="categories"><b>03</b><span><strong>Meaning</strong><small>Unify categories</small></span><i></i></div>
+        <div data-stage="text"><b>04</b><span><strong>Text</strong><small>Clean responses</small></span><i></i></div>
+        <div data-stage="validation"><b>05</b><span><strong>Validate</strong><small>Flag uncertainty</small></span><i></i></div>
+      </div>
+    </section>
+
+    <section class="results hidden" id="results-view">
+      <div class="result-head"><div><div class="eyebrow">RUN COMPLETE</div><h2>Your data is ready.</h2><p>Review what changed, inspect a preview, then download each cleaned table.</p></div><button class="secondary" id="new-run">New run</button></div>
+      <div class="metrics" id="metrics"></div><div class="result-tabs" id="result-tabs"></div><div id="result-detail"></div>
+    </section>
+
+    <section class="error hidden" id="error-view"><span>!</span><h2>Something needs attention.</h2><p id="error-message"></p><button class="secondary" onclick="location.reload()">Start again</button></section>
+  </main>
+  <footer><span>Sift Data Cleaner</span><span>One local model · Five specialized roles</span></footer>
+  <script src="/assets/app.js"></script>
+</body>
+</html>

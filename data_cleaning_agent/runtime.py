@@ -4,8 +4,11 @@ import argparse
 import os
 import shutil
 import subprocess
+import sys
+import time
 from pathlib import Path
 
+import httpx
 from huggingface_hub import hf_hub_download
 from huggingface_hub.errors import LocalEntryNotFoundError
 
@@ -78,8 +81,10 @@ def main(argv=None) -> int:
     parser.add_argument("--offline", action="store_true")
     parser.add_argument("--port", type=int, default=8080)
     parser.add_argument("--context-size", type=int, default=16384)
+    parser.add_argument("--gui-port", type=int, default=7860)
+    parser.add_argument("--no-gui", action="store_true", help="Start only the model API")
     args = parser.parse_args(argv)
-    if not 1 <= args.port <= 65535 or args.context_size < 1024:
+    if not 1 <= args.port <= 65535 or not 1 <= args.gui_port <= 65535 or args.context_size < 1024:
         parser.error("Choose a valid port and a context size of at least 1024")
     try:
         model = ensure_model(offline=args.offline)
@@ -87,10 +92,48 @@ def main(argv=None) -> int:
         if args.download_only:
             return 0
         command = server_command(model, args.port, args.context_size)
-        print(
-            f"Starting Qwen at http://127.0.0.1:{args.port}. Keep this terminal open.", flush=True
-        )
-        return subprocess.call(command)
+        print(f"Starting Qwen at http://127.0.0.1:{args.port}.", flush=True)
+        if args.no_gui:
+            return subprocess.call(command)
+        model_process = subprocess.Popen(command)
+        gui_process = None
+        try:
+            for _ in range(120):
+                if model_process.poll() is not None:
+                    raise RuntimeError("llama-server exited before becoming ready")
+                try:
+                    response = httpx.get(
+                        f"http://127.0.0.1:{args.port}/health", timeout=2, trust_env=False
+                    )
+                    if response.status_code == 200:
+                        break
+                except httpx.HTTPError:
+                    pass
+                time.sleep(1)
+            else:
+                raise RuntimeError("llama-server did not become ready within 120 seconds")
+            gui_process = subprocess.Popen(
+                [
+                    sys.executable,
+                    "-m",
+                    "uvicorn",
+                    "data_cleaning_agent.web:app",
+                    "--host",
+                    "127.0.0.1",
+                    "--port",
+                    str(args.gui_port),
+                ],
+                cwd=ROOT,
+            )
+            print("\nData Cleaner is ready", flush=True)
+            print(f"Open http://127.0.0.1:{args.gui_port} in your browser.", flush=True)
+            print("Keep this terminal open while using the app.\n", flush=True)
+            return gui_process.wait()
+        finally:
+            if gui_process and gui_process.poll() is None:
+                gui_process.terminate()
+            if model_process.poll() is None:
+                model_process.terminate()
     except KeyboardInterrupt:
         return 130
     except Exception as exc:

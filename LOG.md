@@ -3,6 +3,18 @@
 Record each logical change, why it was made, checks performed, and remaining limitations.
 Never include applicant values or model output from real data.
 
+## 2026-09-14 — Local GUI and public showcase
+
+- Added a localhost-only upload interface with animated pipeline progress, table
+  previews, change summaries, and cleaned-file downloads.
+- Startup now launches both Qwen and the GUI and prints the browser address.
+- Added progress events to the existing pipeline without changing its outputs.
+- Added a GitHub Pages showcase with three invented before/after examples and
+  aggregate project results; no participant records are published.
+- Added an Actions workflow that deploys `docs/` to GitHub Pages.
+- Validation: automated web and pipeline checks, full test suite, Ruff, and
+  browser visual review.
+
 ## 2026-09-13 — Complete pipeline and KAUST GPU runner
 
 - Added end-to-end CSV/XLSX folder orchestration across all five roles.
