@@ -56,3 +56,4 @@ place and appear in review reports. See [LOG.md](LOG.md) for implementation
 history and `prompts/` for each role contract.
 
 The latest GPU results are summarized in [ANALYSIS_REPORT.md](ANALYSIS_REPORT.md).
+The remaining values requiring human review are listed in [EDGE_CASES.md](EDGE_CASES.md).

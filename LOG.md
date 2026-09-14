@@ -135,3 +135,4 @@ Never include applicant values or model output from real data.
 - Normalized comma, semicolon, newline, and pipe-separated category lists item by item while preserving order; slash compounds such as UI/UX remain intact.
 - Added individual retries when Qwen omits schema columns or category values from a batch.
 - Accepted explicit academic levels through 12, split slash-delimited programming-language lists, and suppressed fuzzy university proposals when the reviewed knowledge base already identifies both institutions.
+- Added `EDGE_CASES.md` with the final GPU audit and the values that still require human verification.
