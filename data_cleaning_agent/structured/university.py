@@ -38,6 +38,10 @@ def build_university_map(values, *, judge=False, model=None):
     client = (model or LocalModel()) if judge else None
     for i, a in enumerate(unique[:100]):
         for b in unique[i + 1 : 100]:
+            # Reviewed canonical institutions are distinct unless the knowledge base
+            # maps them to the same value before this comparison.
+            if canonical_value(a, "University") and canonical_value(b, "University"):
+                continue
             similarity = string_similarity(a, b)
             if not judge and similarity < 0.75:
                 continue

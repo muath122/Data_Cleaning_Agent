@@ -134,3 +134,4 @@ Never include applicant values or model output from real data.
 - Expanded the reviewed knowledge base to v0.3 with approved university and major aliases found in the 17-table audit.
 - Normalized comma, semicolon, newline, and pipe-separated category lists item by item while preserving order; slash compounds such as UI/UX remain intact.
 - Added individual retries when Qwen omits schema columns or category values from a batch.
+- Accepted explicit academic levels through 12, split slash-delimited programming-language lists, and suppressed fuzzy university proposals when the reviewed knowledge base already identifies both institutions.

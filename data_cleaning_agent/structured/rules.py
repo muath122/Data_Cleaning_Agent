@@ -84,7 +84,7 @@ def academic_level(value):
     if s is None:
         return Normalized(value, "ambiguous_academic_level")
     s = s.casefold().replace("ـ", "")
-    match = re.fullmatch(r"(?:(?:level|lvl|l|المستوى)\s*)?(10|[1-9])", s)
+    match = re.fullmatch(r"(?:(?:level|lvl|l|المستوى)\s*)?(1[0-2]|[1-9])", s)
     if match:
         return Normalized(f"Level {int(match.group(1))}")
     ordinal = re.sub(r"^المستوى\s+", "", s)

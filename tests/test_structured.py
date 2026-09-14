@@ -79,6 +79,7 @@ def test_identifiers(value, expected):
         ("المستوى الثاني", "Level 2"),
         ("الأول", "Level 1"),
         (10.0, "Level 10"),
+        (12, "Level 12"),
         ("Level 3", "Level 3"),
     ],
 )

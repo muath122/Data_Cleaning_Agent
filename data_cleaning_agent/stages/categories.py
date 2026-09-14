@@ -36,8 +36,11 @@ def run_categories(prepared: PreparedData, column: str, category: str, model=Non
         if canonical:
             known[value] = canonical
             continue
-        if isinstance(value, str) and re.search(r"[,،;؛\n|]", value):
-            parts = [part.strip() for part in re.split(r"\s*[,،;؛\n|]\s*", value) if part.strip()]
+        separators = r"[,،;؛\n|/]" if category == "Programming languages" else r"[,،;؛\n|]"
+        if isinstance(value, str) and re.search(separators, value):
+            parts = [
+                part.strip() for part in re.split(rf"\s*{separators}\s*", value) if part.strip()
+            ]
             if len(parts) > 1:
                 multi_values[value] = parts
                 for part in parts:
@@ -90,11 +93,15 @@ def run_categories(prepared: PreparedData, column: str, category: str, model=Non
         for missing in set(batch) - returned:
             single_returned = accept([missing], request([missing]))
             if missing not in single_returned:
+                row_indices = [
+                    row for row, value in enumerate(df.iloc[:, position]) if value == missing
+                ]
                 result.issues.append(
                     {
                         "column_index": position,
                         "rule": "missing_category_mapping",
-                        "count": 1,
+                        "count": len(row_indices),
+                        "row_indices": row_indices,
                     }
                 )
     mapping = {item.original_value: item for item in proposals}
