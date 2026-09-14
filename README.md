@@ -25,6 +25,11 @@ data_cleaning_agent pipeline --input data --output-dir outputs/local-run`.
 4-bit file is about 1.28 GB and was selected for reliable structured output.
 The pipeline accepts CSV files, Excel files, or a folder containing both. Each
 nonempty Excel sheet becomes a cleaned CSV plus a JSON audit report.
+Known university, major, and committee aliases come from
+`knowledge_base/knowledge_base_v0.2.json` before Qwen reviews unknown values.
+Cleaning keeps the source column count and records missing answers in the audit
+report instead of adding helper columns. Set `DATA_CLEANING_KNOWLEDGE_BASE` to use
+another reviewed JSON knowledge base.
 
 See the public, invented-data showcase at
 **https://muath122.github.io/Data_Cleaning_Agent/**. It contains no participant data.

@@ -146,11 +146,22 @@ def test_categories_mapping_ambiguity_and_multiselect():
     ]
     assert result.dataframe["other"].tolist() == ["unchanged"] * 6
     assert data.rows[0][0] == "علوم الحاسب"
-    assert len(client.calls) == 1 and client.calls[0]["values"].count("CS") == 1
+    assert len(client.calls) == 1 and client.calls[0]["values"] == ["ambiguous"]
     assert {issue["rule"] for issue in result.issues} == {
         "uncertain_category",
         "unsupported_scalar_value",
     }
+
+
+def test_categories_use_knowledge_base_before_model():
+    class ModelMustNotRun:
+        def analyze(self, *_args, **_kwargs):
+            raise AssertionError("known aliases must not require the model")
+
+    data = prepared(["CS", "cs", "علوم حاسب", "Computer science"])
+    result = run_categories(data, "التخصص", "Major", ModelMustNotRun())
+    assert result.dataframe.iloc[:, 0].tolist() == ["Computer Science"] * 4
+    assert result.details["knowledge_base_matches"] == 4
 
 
 def test_categories_missing_items_are_flagged():
@@ -197,6 +208,14 @@ def test_text_enrichment_and_masking_are_opt_in():
     assert "demo@example.invalid" in masked.dataframe.at[0, "feedback"]
     assert masked.dataframe.at[0, "feedback_sentiment"] == "Positive"
     assert not masked.details["fully_anonymized"]
+
+
+def test_text_can_clean_in_place_without_adding_columns():
+    df = pd.DataFrame({"feedback": ["  useful   session ", "لا يوجد", None]})
+    result = run_text(df, ["feedback"], append_columns=False)
+    assert list(result.dataframe.columns) == ["feedback"]
+    assert result.dataframe["feedback"].tolist() == ["useful session", "لا يوجد", ""]
+    assert sum(issue["rule"] == "missing_or_placeholder" for issue in result.issues) == 2
 
 
 def test_text_rejects_target_collisions():

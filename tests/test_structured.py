@@ -184,6 +184,12 @@ def test_university_qwen_requires_prepared_input_and_returns_proposals():
         run_structured(prepared, judge_universities=True, model=UniversityModel(bad=True))
 
 
+def test_university_knowledge_base_unifies_case_and_language():
+    df = pd.DataFrame({"university": ["UJ", "uj", "Uj", "جامعة جدة", "Jeddah University"]})
+    result = run_structured(df)
+    assert result.dataframe["university"].tolist() == ["University of Jeddah"] * 5
+
+
 def excel_bytes():
     workbook = openpyxl.Workbook()
     sheet = workbook.active

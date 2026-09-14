@@ -20,21 +20,69 @@ from .stages.validation import run_validation
 STAGE_STATUS = {
     "schema": "implemented with local-Qwen inference and deterministic fallback",
     "structured": "implemented with deterministic normalization",
-    "categories": "implemented with local-Qwen semantic normalization",
-    "text": "implemented with meaning-preserving cleanup and missing flags",
+    "categories": "implemented with reviewed mappings before local-Qwen normalization",
+    "text": "implemented with in-place cleanup and audit-only missing flags",
     "validation": "implemented as read-only checks",
     "privacy": "implemented as local in-memory masking before model calls",
 }
 
 CATEGORY_NAMES = {
+    "university": "University",
+    "university_name": "University",
     "major": "Major",
     "committee": "Committee",
+    "committee_name": "Committee",
     "skills": "Skills",
     "tools": "Tools",
     "programming_languages": "Programming languages",
     "role": "Roles",
+    "preferred_role": "Roles",
     "department": "Departments",
+    "department_name": "Departments",
 }
+
+HEADER_ALIASES = {
+    "full_name_ar": {"الاسم الثلاثي بالعربي", "الاسم بالعربي"},
+    "full_name_en": {"full name in english", "english name"},
+    "gender": {"gender", "الجنس"},
+    "phone": {"phone", "phone number", "رقم الجوال", "رقم الهاتف"},
+    "email": {"email", "e mail", "البريد الالكتروني gmail", "البريد الإلكتروني gmail"},
+    "university": {"university", "university name", "اسم الجامعة", "الجامعة"},
+    "major": {"major", "التخصص الجامعي", "التخصص"},
+    "university_id": {"university id", "student id", "الرقم الجامعي"},
+}
+
+
+def _header_key(value) -> str:
+    return re.sub(r"[^\w\u0600-\u06ff]+", " ", str(value).casefold()).strip()
+
+
+def _remove_embedded_headers(df: pd.DataFrame) -> tuple[pd.DataFrame, StageResult]:
+    result = StageResult(df.copy(deep=True), "embedded_headers")
+    positions = {
+        i: {_header_key(v) for v in HEADER_ALIASES.get(re.sub(r"_\d+$", "", str(name)), ())}
+        for i, name in enumerate(df.columns)
+    }
+    remove = []
+    for row_index, row in df.iterrows():
+        matches = sum(
+            bool(positions[i]) and _header_key(value) in positions[i]
+            for i, value in enumerate(row)
+            if not pd.isna(value) and str(value).strip()
+        )
+        if matches >= 3:
+            remove.append(row_index)
+    if remove:
+        result.dataframe = df.drop(index=remove).reset_index(drop=True)
+        result.changes.append(
+            {
+                "rule": "embedded_headers_removed",
+                "count": len(remove),
+                "row_indices": remove,
+            }
+        )
+    result.details = {"removed_rows": remove}
+    return result.dataframe, result
 
 
 def _safe_name(path: Path, sheet: str | None) -> str:
@@ -120,13 +168,14 @@ def run_table(
     notify("schema")
     schema = _schema_raw(df, client)
     current = schema.dataframe
+    current, embedded_headers = _remove_embedded_headers(current)
     notify("structured")
     structured = run_structured(current)
     current = structured.dataframe
-    stages = [schema, structured]
+    stages = [schema, embedded_headers, structured]
     for column in list(current.columns):
         base = re.sub(r"_\d+$", "", str(column))
-        category = next((value for key, value in CATEGORY_NAMES.items() if key in base), None)
+        category = CATEGORY_NAMES.get(base)
         if not category:
             continue
         prepared, vault = prepare_private_data(current)
@@ -151,7 +200,7 @@ def run_table(
     ]
     if text_columns:
         notify("text")
-        text_result = run_text(current, list(dict.fromkeys(text_columns)))
+        text_result = run_text(current, list(dict.fromkeys(text_columns)), append_columns=False)
     else:
         text_result = StageResult(current.copy(deep=True), "text")
         text_result.details = {"selected_columns": [], "reason": "none detected"}

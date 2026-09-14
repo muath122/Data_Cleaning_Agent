@@ -6,6 +6,7 @@ from typing import get_args
 import pandas as pd
 
 from ..contracts import Category, CategoryReport, StageResult
+from ..knowledge import canonical_value
 from ..model import LocalModel, ModelError
 from ..privacy import PreparedData
 
@@ -26,8 +27,13 @@ def run_categories(prepared: PreparedData, column: str, category: str, model=Non
     position = column_position(df, column)
     result = StageResult(df.copy(deep=True), "categories")
     eligible = []
+    known = {}
     for row, value in enumerate(df.iloc[:, position]):
         if pd.isna(value) or (isinstance(value, str) and not value.strip()):
+            continue
+        canonical = canonical_value(value, category)
+        if canonical:
+            known[value] = canonical
             continue
         # Do not guess token boundaries or force list-valued answers into scalar mappings.
         if not isinstance(value, str) or re.search(r"[,،;؛\n/|]", value):
@@ -37,7 +43,7 @@ def run_categories(prepared: PreparedData, column: str, category: str, model=Non
         elif value not in eligible:
             eligible.append(value)
     proposals = []
-    client = model or LocalModel()
+    client = (model or LocalModel()) if eligible else None
     for start in range(0, len(eligible), 10):
         batch = eligible[start : start + 10]
         report = None
@@ -70,7 +76,22 @@ def run_categories(prepared: PreparedData, column: str, category: str, model=Non
     mapping = {item.original_value: item for item in proposals}
     # No mutations occur until every batch has validated.
     for row, value in enumerate(df.iloc[:, position]):
-        if not isinstance(value, str) or value not in mapping:
+        if not isinstance(value, str):
+            continue
+        if value in known:
+            if known[value] != value:
+                result.dataframe.iat[row, position] = known[value]
+                result.changes.append(
+                    {
+                        "row_index": row,
+                        "column_index": position,
+                        "before": value,
+                        "after": known[value],
+                        "source": "knowledge_base",
+                    }
+                )
+            continue
+        if value not in mapping:
             continue
         item = mapping[value]
         if item.status == "needs_review" or item.confidence < 0.70:
@@ -94,6 +115,7 @@ def run_categories(prepared: PreparedData, column: str, category: str, model=Non
             )
     result.details = {
         "input_provenance": prepared.provenance,
+        "knowledge_base_matches": len(known),
         "mappings": [item.model_dump() for item in proposals],
     }
     return result

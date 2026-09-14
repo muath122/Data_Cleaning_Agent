@@ -20,11 +20,17 @@ def clean_text_basic(value, *, mask_pii=False):
     return (mask_pii_locally(text) if mask_pii else text), False
 
 
-def run_text(df, columns, *, enrich=False, mask_pii=False):
+def run_text(df, columns, *, enrich=False, mask_pii=False, append_columns=True):
     if not columns or len(columns) != len(set(columns)):
         raise ValueError("Select at least one distinct text column")
     positions = [(column, column_position(df, column)) for column in columns]
-    suffixes = ["cleaned", "missing"] + (["sentiment", "topics"] if enrich else [])
+    if enrich and not append_columns:
+        raise ValueError("Text enrichment requires appended output columns")
+    suffixes = (
+        (["cleaned", "missing"] + (["sentiment", "topics"] if enrich else []))
+        if append_columns
+        else []
+    )
     generated = [f"{column}_{suffix}" for column in columns for suffix in suffixes]
     if len(generated) != len(set(generated)) or any(name in df.columns for name in generated):
         raise ValueError("Generated text columns already exist or conflict; choose another input")
@@ -33,17 +39,20 @@ def run_text(df, columns, *, enrich=False, mask_pii=False):
         cleaned_values, missing_values = [], []
         for row, value in enumerate(df.iloc[:, position]):
             cleaned, missing = clean_text_basic(value, mask_pii=mask_pii)
-            cleaned_values.append(cleaned)
+            output_value = cleaned
+            if not append_columns and missing and not pd.isna(value) and str(value).strip():
+                output_value = re.sub(r"\s+", " ", str(value)).strip()
+            cleaned_values.append(output_value)
             missing_values.append(missing)
             original = None if pd.isna(value) else str(value)
-            if original != cleaned:
+            if original != output_value:
                 result.changes.append(
                     {
                         "row_index": row,
                         "column_index": position,
                         "target_column": f"{column}_cleaned",
                         "before": original,
-                        "after": cleaned,
+                        "after": output_value,
                     }
                 )
             if missing:
@@ -55,8 +64,14 @@ def run_text(df, columns, *, enrich=False, mask_pii=False):
                         "applicability": "unknown",
                     }
                 )
-        result.dataframe[f"{column}_cleaned"] = cleaned_values
-        result.dataframe[f"{column}_missing"] = missing_values
+        if append_columns:
+            result.dataframe[f"{column}_cleaned"] = cleaned_values
+            result.dataframe[f"{column}_missing"] = missing_values
+        else:
+            # Preserve explicit placeholder answers; missingness belongs in the audit report.
+            result.dataframe.isetitem(
+                position, pd.Series(cleaned_values, index=df.index, dtype=object)
+            )
         if enrich:
             result.dataframe[f"{column}_sentiment"] = [
                 analyze_sentiment_locally(v) if v else "None" for v in cleaned_values
@@ -67,7 +82,8 @@ def run_text(df, columns, *, enrich=False, mask_pii=False):
     result.details = {
         "enrichment": enrich,
         "heuristic_pii_masking": mask_pii,
-        "original_columns_retained": True,
+        "original_columns_retained": append_columns,
+        "append_columns": append_columns,
         "fully_anonymized": False,
     }
     return result

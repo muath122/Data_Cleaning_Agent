@@ -138,6 +138,12 @@ Example:
 
 Never determine meaning from the value alone.
 
+## University
+
+Normalize university names only when the institution is clearly equivalent.
+Prefer the reviewed local knowledge base. Keep unknown or ambiguous institutions
+unchanged and mark them for review.
+
 MAJOR
 
 Academic majors and fields of study.
@@ -638,6 +644,7 @@ Preserve original_value exactly.
 
 The category must be one of:
 
+"University"
 "Major"
 "Committee"
 "Skills"

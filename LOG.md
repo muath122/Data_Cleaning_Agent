@@ -3,6 +3,23 @@
 Record each logical change, why it was made, checks performed, and remaining limitations.
 Never include applicant values or model output from real data.
 
+## 2026-09-14 — Knowledge-based category fixes
+
+- Added the supplied reviewed university, major, and committee aliases as a
+  deterministic step before model suggestions.
+- Unified case, spacing, Arabic spelling variants, and known abbreviations while
+  leaving unknown categories unchanged for review.
+- Removed repeated form-header rows embedded inside combined worksheets.
+- Changed the full pipeline's text cleanup to update its selected columns in
+  place; missing/placeholder status remains in the audit report without adding
+  output columns.
+- Restyled the public showcase with a simpler Google Developer Groups-inspired
+  blue, red, yellow, and green palette.
+- Enabled automatic Pages setup in the deployment workflow.
+- Validation against the supplied output reduced 188 rows and 21 columns to 185
+  participant rows and the original 13 columns, with no remaining known UJ/CS
+  aliases. Automated validation: 93 tests passed.
+
 ## 2026-09-14 — Local GUI and public showcase
 
 - Added a localhost-only upload interface with animated pipeline progress, table

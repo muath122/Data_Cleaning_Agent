@@ -40,7 +40,14 @@ class SchemaReport(StrictModel):
 
 
 Category = Literal[
-    "Major", "Committee", "Skills", "Tools", "Programming languages", "Roles", "Departments"
+    "University",
+    "Major",
+    "Committee",
+    "Skills",
+    "Tools",
+    "Programming languages",
+    "Roles",
+    "Departments",
 ]
 
 

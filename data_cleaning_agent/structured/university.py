@@ -5,6 +5,7 @@ from collections import Counter
 from difflib import SequenceMatcher
 
 from ..contracts import UniversityJudgment
+from ..knowledge import canonical_value
 from ..model import LocalModel, ModelError
 from .normalizers import blank, text
 
@@ -27,6 +28,9 @@ def build_university_map(values, *, judge=False, model=None):
         canonical = choose_canonical_variant(variants, counts)
         for value in variants:
             mapping[value] = canonical
+    for value in list(mapping):
+        if known := canonical_value(value, "University"):
+            mapping[value] = known
     unique = sorted(set(mapping.values()))
     proposals = []
     limited = len(unique) > 100

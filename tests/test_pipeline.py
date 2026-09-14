@@ -1,7 +1,7 @@
 import pandas as pd
 
 from data_cleaning_agent.contracts import CategoryReport, SchemaReport
-from data_cleaning_agent.pipeline import run_pipeline
+from data_cleaning_agent.pipeline import _remove_embedded_headers, run_pipeline
 
 
 class PipelineModel:
@@ -51,7 +51,7 @@ def test_full_pipeline_masks_model_input_and_preserves_source(tmp_path):
     assert result.loc[0, "email"] == "a@x.com"
     assert result.loc[0, "phone"] == "+966551234567"
     assert result.loc[0, "major"] == "Computer Science"
-    assert result.loc[0, "feedback_cleaned"] == "good"
+    assert result.loc[0, "feedback"] == "good"
     assert source.read_text(encoding="utf-8").startswith("E-mail")
     assert [event["stage"] for event in events] == [
         "reading",
@@ -62,3 +62,19 @@ def test_full_pipeline_masks_model_input_and_preserves_source(tmp_path):
         "validation",
         "complete",
     ]
+    assert list(result.columns) == ["email", "phone", "major", "feedback"]
+
+
+def test_repeated_form_headers_are_removed_without_matching_normal_rows():
+    frame = pd.DataFrame(
+        [
+            ["الجنس", "رقم الجوال", "اسم الجامعة", "التخصص الجامعي"],
+            ["Female", "0500000000", "UJ", "CS"],
+        ],
+        columns=["gender", "phone", "university", "major"],
+    )
+    cleaned, stage = _remove_embedded_headers(frame)
+    assert len(cleaned) == 1
+    assert cleaned.iloc[0].tolist() == ["Female", "0500000000", "UJ", "CS"]
+    assert stage.details["removed_rows"] == [0]
+    assert not stage.issues
