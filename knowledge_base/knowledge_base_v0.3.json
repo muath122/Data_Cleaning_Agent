@@ -1,0 +1,476 @@
+{
+  "metadata": {
+    "name": "GDSC_Data_Cleaning_Knowledge_Base",
+    "version": "0.3",
+    "purpose": "Canonical reference values and aliases for the data-cleaning multi-agent system.",
+    "scope": [
+      "universities",
+      "majors",
+      "main_committees",
+      "sub_committees"
+    ]
+  },
+  "universities": [
+    {
+      "id": "UNI_001",
+      "canonical_ar": "جامعة جدة",
+      "canonical_en": "University of Jeddah",
+      "aliases": [
+        "جامعة جدة",
+        "جامعه جدة",
+        "جامعه جده",
+        "جامعة جده",
+        "University of Jeddah",
+        "UJ",
+        "Jeddah University",
+        "UJ University",
+        "University of Jeddah (UJ)",
+        "جامعة جدة حي الفيصلية",
+        "جامعه جدة حي الفيصلية",
+        "جدة",
+        "جده",
+        "Jeddah"
+      ]
+    },
+    {
+      "id": "UNI_002",
+      "canonical_ar": "جامعة الملك عبدالعزيز",
+      "canonical_en": "King Abdulaziz University",
+      "aliases": [
+        "جامعة الملك عبدالعزيز",
+        "جامعه الملك عبدالعزيز",
+        "جامعة عبدالعزيز",
+        "جامعه عبدالعزيز",
+        "King Abdulaziz University",
+        "King Abdul Aziz University",
+        "KAU",
+        "King Abdul Aziz",
+        "جامعة الملك عبد العزيز",
+        "الملك عبدالعزيز"
+      ]
+    },
+    {
+      "id": "UNI_003",
+      "canonical_ar": "الجامعة العربية المفتوحة",
+      "canonical_en": "Arab Open University",
+      "aliases": [
+        "Arab Open University",
+        "Arabic Open University",
+        "Arab Open Unvirsty",
+        "AOU",
+        "Aou",
+        "الجامعة العربية المفتوحة"
+      ]
+    },
+    {
+      "id": "UNI_004",
+      "canonical_ar": "الجامعة السعودية الإلكترونية",
+      "canonical_en": "Saudi Electronic University",
+      "aliases": [
+        "Saudi Electronic University",
+        "Saudi Electronic Uni",
+        "SEU",
+        "الجامعة السعودية الإلكترونية",
+        "الجامعه السعوديه الالكترونيه"
+      ]
+    },
+    {
+      "id": "UNI_005",
+      "canonical_ar": "جامعة الملك خالد",
+      "canonical_en": "King Khalid University",
+      "aliases": [
+        "King Khalid University",
+        "King Khaled University",
+        "KKU",
+        "جامعة الملك خالد"
+      ]
+    },
+    {
+      "id": "UNI_006",
+      "canonical_ar": "جامعة أم القرى",
+      "canonical_en": "Umm Al-Qura University",
+      "aliases": [
+        "Umm Al-Qura University",
+        "Umm Al Qura University",
+        "Umm Al Qura",
+        "Umm Alqura",
+        "UQU",
+        "جامعة أم القرى",
+        "جامعه ام القرى"
+      ]
+    },
+    {
+      "id": "UNI_007",
+      "canonical_ar": "جامعة الإمام محمد بن سعود الإسلامية",
+      "canonical_en": "Imam Mohammad Ibn Saud Islamic University",
+      "aliases": [
+        "Imam Mohammad Ibn Saud Islamic University",
+        "Imam Muhammad bin Saud University",
+        "Imam Mohammed Bin Suad Islamic University",
+        "IMAMU",
+        "Imamu",
+        "جامعة الامام محمد بن سعود الاسلامية",
+        "جامعة الإمام محمد بن سعود الإسلامية"
+      ]
+    },
+    {
+      "id": "UNI_008",
+      "canonical_ar": "جامعة الإمام عبدالرحمن بن فيصل",
+      "canonical_en": "Imam Abdulrahman Bin Faisal University",
+      "aliases": [
+        "Imam Abdulrahman Bin Faisal University",
+        "Imam Abdulrahman Bin Faisal",
+        "IAU",
+        "جامعة الإمام عبدالرحمن بن فيصل",
+        "الامام عبدالرحمن بن فيصل"
+      ]
+    },
+    {
+      "id": "UNI_009",
+      "canonical_ar": "جامعة عفت",
+      "canonical_en": "Effat University",
+      "aliases": [
+        "Effat University",
+        "Effat",
+        "جامعة عفت"
+      ]
+    },
+    {
+      "id": "UNI_010",
+      "canonical_ar": "جامعة دار الحكمة",
+      "canonical_en": "Dar Al-Hekma University",
+      "aliases": [
+        "Dar Al-Hekma University",
+        "Dar Al Hekma University",
+        "جامعة دار الحكمة"
+      ]
+    }
+  ],
+  "majors": [
+    {
+      "id": "MAJ_001",
+      "canonical_en": "Computer Science",
+      "canonical_ar": "علوم الحاسب",
+      "aliases": [
+        "CS",
+        "Computer Sciences",
+        "computer science",
+        "علوم حاسب",
+        "علوم الحاسب",
+        "cs"
+      ]
+    },
+    {
+      "id": "MAJ_002",
+      "canonical_en": "Computer & Network Engineering",
+      "canonical_ar": "هندسة الحاسب والشبكات",
+      "aliases": [
+        "Computer and Network Engineering",
+        "Computer Network Engineering",
+        "CNE",
+        "هندسة الحاسب والشبكات",
+        "هندسة الحاسب و الشبكات",
+        "هندسة حاسب و شبكات",
+        "هندسة حاسب وشبكات"
+      ]
+    },
+    {
+      "id": "MAJ_003",
+      "canonical_en": "Software Engineering",
+      "canonical_ar": "هندسة البرمجيات",
+      "aliases": [
+        "SE",
+        "software engineering",
+        "هندسة برمجيات",
+        "هندسة البرمجيات",
+        "هندسه برمجيات",
+        "Software engineer"
+      ]
+    },
+    {
+      "id": "MAJ_004",
+      "canonical_en": "Cybersecurity",
+      "canonical_ar": "الأمن السيبراني",
+      "aliases": [
+        "Cyber Security",
+        "Cybersecurity",
+        "cyber security",
+        "الأمن السيبراني",
+        "امن سيبراني"
+      ]
+    },
+    {
+      "id": "MAJ_005",
+      "canonical_en": "Artificial Intelligence",
+      "canonical_ar": "الذكاء الاصطناعي",
+      "aliases": [
+        "AI",
+        "Artificial intelligence",
+        "artificial intelligence",
+        "ذكاء اصطناعي",
+        "الذكاء الاصطناعي"
+      ]
+    },
+    {
+      "id": "MAJ_006",
+      "canonical_en": "Data Science",
+      "canonical_ar": "علم البيانات",
+      "aliases": [
+        "DS",
+        "data science",
+        "Data Sciences",
+        "علم البيانات",
+        "علوم البيانات",
+        "علوم بيانات وتحليلها",
+        "علوم البيانات وتحليلها",
+        "علوم بيانات",
+        "علوم وتحليل البيانات"
+      ]
+    },
+    {
+      "id": "MAJ_007",
+      "canonical_en": "Information Technology",
+      "canonical_ar": "تقنية المعلومات",
+      "aliases": [
+        "Information Technology",
+        "IT",
+        "تقنية المعلومات",
+        "تقنية معلومات"
+      ]
+    },
+    {
+      "id": "MAJ_008",
+      "canonical_en": "Information Systems",
+      "canonical_ar": "نظم المعلومات",
+      "aliases": [
+        "Information Systems",
+        "IS",
+        "نظم المعلومات",
+        "نظم معلومات"
+      ]
+    },
+    {
+      "id": "MAJ_009",
+      "canonical_en": "Marketing",
+      "canonical_ar": "التسويق",
+      "aliases": [
+        "Marketing",
+        "التسويق",
+        "تسويق"
+      ]
+    },
+    {
+      "id": "MAJ_010",
+      "canonical_en": "Computer Engineering",
+      "canonical_ar": "هندسة الحاسب",
+      "aliases": [
+        "Computer Engineering",
+        "CE",
+        "هندسة الحاسب",
+        "هندسة حاسب"
+      ]
+    },
+    {
+      "id": "MAJ_011",
+      "canonical_en": "Biochemistry",
+      "canonical_ar": "الكيمياء الحيوية",
+      "aliases": [
+        "Biochemistry",
+        "Bio Chemistry",
+        "الكيمياء الحيوية"
+      ]
+    },
+    {
+      "id": "MAJ_012",
+      "canonical_en": "Digital Media",
+      "canonical_ar": "الإعلام الرقمي",
+      "aliases": [
+        "Digital Media",
+        "الإعلام الرقمي",
+        "اعلام رقمي",
+        "إعلام رقمي"
+      ]
+    },
+    {
+      "id": "MAJ_013",
+      "canonical_en": "Finance",
+      "canonical_ar": "المالية",
+      "aliases": [
+        "Finance",
+        "المالية",
+        "مالية"
+      ]
+    },
+    {
+      "id": "MAJ_014",
+      "canonical_en": "Finance and Economics",
+      "canonical_ar": "المالية والاقتصاد",
+      "aliases": [
+        "Finance and Economics",
+        "Finance & Economics",
+        "المالية والاقتصاد",
+        "مالية واقتصاد",
+        "ماليه واقتصاد"
+      ]
+    },
+    {
+      "id": "MAJ_015",
+      "canonical_en": "Accounting",
+      "canonical_ar": "المحاسبة",
+      "aliases": [
+        "Accounting",
+        "المحاسبة",
+        "محاسبة"
+      ]
+    },
+    {
+      "id": "MAJ_016",
+      "canonical_en": "Human Resources",
+      "canonical_ar": "الموارد البشرية",
+      "aliases": [
+        "Human Resources",
+        "HR",
+        "الموارد البشرية",
+        "موارد بشرية"
+      ]
+    },
+    {
+      "id": "MAJ_017",
+      "canonical_en": "General Administration",
+      "canonical_ar": "الإدارة العامة",
+      "aliases": [
+        "General Administration",
+        "الإدارة العامة",
+        "ادارة عامة"
+      ]
+    },
+    {
+      "id": "MAJ_018",
+      "canonical_en": "Management Information Systems",
+      "canonical_ar": "نظم المعلومات الإدارية",
+      "aliases": [
+        "Management Information Systems",
+        "MIS",
+        "نظم المعلومات الإدارية",
+        "نظم معلومات ادارية"
+      ]
+    },
+    {
+      "id": "MAJ_019",
+      "canonical_en": "Data Analytics",
+      "canonical_ar": "تحليل البيانات",
+      "aliases": [
+        "Data Analytics",
+        "Data Analysis",
+        "تحليل البيانات"
+      ]
+    }
+  ],
+  "main_committees": [
+    {
+      "id": "MAIN_001",
+      "canonical_ar": "إدارة المحتوى",
+      "aliases": [
+        "ادارة المحتوى",
+        "إدارة المحتوى",
+        "لجنة إدارة المحتوى",
+        "لجنة المحتوى"
+      ]
+    },
+    {
+      "id": "MAIN_002",
+      "canonical_ar": "إدارة المشاريع",
+      "aliases": [
+        "ادارة المشاريع",
+        "إدارة المشاريع",
+        "لجنة إدارة المشاريع",
+        "لجنة المشاريع"
+      ]
+    },
+    {
+      "id": "MAIN_003",
+      "canonical_ar": "التصميم والإعلام الرقمي",
+      "aliases": [
+        "التصميم والاعلام الرقمي",
+        "التصميم والإعلام الرقمي",
+        "لجنة التصميم والإعلام الرقمي",
+        "التصميم والاعلام"
+      ]
+    },
+    {
+      "id": "MAIN_004",
+      "canonical_ar": "إدارة العلاقات",
+      "aliases": [
+        "ادارة العلاقات",
+        "إدارة العلاقات",
+        "لجنة إدارة العلاقات",
+        "لجنة العلاقات"
+      ]
+    }
+  ],
+  "sub_committees": [
+    {
+      "id": "SUB_001",
+      "canonical_ar": "الأمن السيبراني",
+      "aliases": [
+        "الامن السبراني",
+        "الأمن السيبراني",
+        "امن سيبراني",
+        "Cybersecurity",
+        "Cyber Security"
+      ]
+    },
+    {
+      "id": "SUB_002",
+      "canonical_ar": "تطوير الويب",
+      "aliases": [
+        "تطوير الويب",
+        "Web Development",
+        "Web Dev",
+        "تطوير المواقع"
+      ]
+    },
+    {
+      "id": "SUB_003",
+      "canonical_ar": "الأتمتة",
+      "aliases": [
+        "الاتمتة",
+        "الأتمتة",
+        "Automation",
+        "Automation Committee"
+      ]
+    },
+    {
+      "id": "SUB_004",
+      "canonical_ar": "تحليل البيانات",
+      "aliases": [
+        "تحليل البيانات",
+        "Data Analysis",
+        "Data Analytics",
+        "لجنة تحليل البيانات"
+      ]
+    },
+    {
+      "id": "SUB_005",
+      "canonical_ar": "الذكاء الاصطناعي",
+      "aliases": [
+        "الذكاء الاصطناعي",
+        "ذكاء اصطناعي",
+        "Artificial Intelligence",
+        "AI",
+        "لجنة الذكاء الاصطناعي"
+      ]
+    }
+  ],
+  "matching_policy": {
+    "preferred_order": [
+      "exact_match",
+      "normalized_match",
+      "fuzzy_match",
+      "llm_suggestion",
+      "needs_review"
+    ],
+    "unknown_value_action": "needs_review",
+    "auto_add_unknown_values": false
+  }
+}
