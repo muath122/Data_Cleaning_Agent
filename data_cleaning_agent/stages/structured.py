@@ -4,7 +4,13 @@ import pandas as pd
 
 from ..contracts import StageResult
 from ..privacy import PreparedData, PrivacyNotReady
-from ..structured.normalizers import blank, infer_supported_role
+from ..structured.normalizers import (
+    blank,
+    build_categorical_map,
+    infer_supported_role,
+    looks_categorical_series,
+    text,
+)
 from ..structured.rules import RULES, normalize_value
 from ..structured.university import build_university_map, surface_normalize
 
@@ -49,6 +55,47 @@ def run_structured_many(tables, column_roles=None, *, judge_universities=False, 
         result = StageResult(df.copy(deep=True), "structured")
         roles = selected_roles(df, column_roles)
         roles_by_file[name] = roles
+
+        # Automatically normalize obvious formatting variants
+        # in unrecognized low-cardinality text columns.
+        if column_roles is None:
+            for i in range(len(df.columns)):
+                if i in roles:
+                    continue
+
+                series = df.iloc[:, i]
+
+                if not looks_categorical_series(series):
+                    continue
+
+                category_map = build_categorical_map(series)
+
+                if not category_map:
+                    continue
+
+                result.dataframe.isetitem(
+                    i,
+                    result.dataframe.iloc[:, i].astype(object).copy(),
+                )
+
+                for row, value in enumerate(series):
+                    if blank(value):
+                        continue
+
+                    normalized = category_map.get(text(value), value)
+
+                    if changed(value, normalized):
+                        result.dataframe.iat[row, i] = normalized
+                        result.changes.append(
+                            {
+                                "row_index": row,
+                                "column_index": i,
+                                "role": "categorical_format",
+                                "before": value,
+                                "after": normalized,
+                            }
+                        )
+
         result.details = {
             "column_roles": {str(i): role for i, role in roles.items()},
             "university_model_assistance": judge_universities,

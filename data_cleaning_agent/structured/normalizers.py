@@ -198,3 +198,113 @@ BOOLEAN_MAP = {
     "خطأ": False,
     "خطا": False,
 }
+
+
+def looks_categorical_series(series):
+    """
+    Detect whether a text column looks categorical.
+
+    Formatting variants are considered the same category
+    when estimating cardinality.
+    """
+    non_null = series.dropna()
+
+    if non_null.empty:
+        return False
+
+    if not (pd.api.types.is_object_dtype(series) or pd.api.types.is_string_dtype(series)):
+        return False
+
+    values = [text(value) for value in non_null if not blank(value)]
+
+    if not values:
+        return False
+
+    keys = [categorical_key(value) for value in values]
+
+    unique_count = len(set(keys))
+    total_count = len(keys)
+    unique_ratio = unique_count / total_count
+
+    return unique_count <= 100 and unique_ratio <= 0.30
+
+
+def categorical_key(value):
+    """
+    Create a comparison-only version of a categorical value.
+
+    The key is used to discover formatting variants.
+    It is NOT written into the final dataset.
+    """
+    if blank(value):
+        return value
+
+    s = text(value).casefold()
+
+    s = s.replace("-", " ")
+    s = s.replace("_", " ")
+    s = re.sub(r"\s+", " ", s)
+
+    return s.strip()
+
+
+def choose_canonical_value(values):
+    """
+    Choose the best representation from formatting variants.
+
+    Preference:
+    1. Most frequently occurring representation.
+    2. If tied, prefer a naturally capitalized representation.
+    3. Otherwise use the first observed representation.
+    """
+    counts = pd.Series(values).value_counts()
+    highest_count = counts.max()
+
+    candidates = [value for value, count in counts.items() if count == highest_count]
+
+    if len(candidates) == 1:
+        return candidates[0]
+
+    for value in candidates:
+        if value == value.title():
+            return value
+
+    return candidates[0]
+
+
+def build_categorical_map(series):
+    """
+    Build a mapping for obvious formatting variants found
+    inside a categorical column.
+
+    No category names are hard-coded.
+    """
+    groups = {}
+
+    for value in series.dropna():
+        if blank(value):
+            continue
+
+        original = text(value)
+        key = categorical_key(original)
+
+        if key not in groups:
+            groups[key] = []
+
+        groups[key].append(original)
+
+    mapping = {}
+
+    for values in groups.values():
+        unique_values = list(dict.fromkeys(values))
+
+        if len(unique_values) <= 1:
+            continue
+
+        canonical = choose_canonical_value(values)
+
+        for value in unique_values:
+            if value != canonical:
+                mapping[value] = canonical
+
+    return mapping
