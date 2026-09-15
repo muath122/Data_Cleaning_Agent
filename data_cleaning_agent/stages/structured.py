@@ -56,7 +56,7 @@ def run_structured_many(tables, column_roles=None, *, judge_universities=False, 
         roles = selected_roles(df, column_roles)
         roles_by_file[name] = roles
 
-                # Automatically normalize obvious formatting variants
+        # Automatically normalize obvious formatting variants
         # in unrecognized low-cardinality text columns.
         if column_roles is None:
             for i in range(len(df.columns)):
@@ -95,7 +95,7 @@ def run_structured_many(tables, column_roles=None, *, judge_universities=False, 
                                 "after": normalized,
                             }
                         )
-                        
+
         result.details = {
             "column_roles": {str(i): role for i, role in roles.items()},
             "university_model_assistance": judge_universities,

@@ -199,6 +199,7 @@ BOOLEAN_MAP = {
     "خطا": False,
 }
 
+
 def looks_categorical_series(series):
     """
     Detect whether a text column looks categorical.
@@ -211,34 +212,21 @@ def looks_categorical_series(series):
     if non_null.empty:
         return False
 
-    if not (
-        pd.api.types.is_object_dtype(series)
-        or pd.api.types.is_string_dtype(series)
-    ):
+    if not (pd.api.types.is_object_dtype(series) or pd.api.types.is_string_dtype(series)):
         return False
 
-    values = [
-        text(value)
-        for value in non_null
-        if not blank(value)
-    ]
+    values = [text(value) for value in non_null if not blank(value)]
 
     if not values:
         return False
 
-    keys = [
-        categorical_key(value)
-        for value in values
-    ]
+    keys = [categorical_key(value) for value in values]
 
     unique_count = len(set(keys))
     total_count = len(keys)
     unique_ratio = unique_count / total_count
 
-    return (
-        unique_count <= 100
-        and unique_ratio <= 0.30
-    )
+    return unique_count <= 100 and unique_ratio <= 0.30
 
 
 def categorical_key(value):
@@ -272,11 +260,7 @@ def choose_canonical_value(values):
     counts = pd.Series(values).value_counts()
     highest_count = counts.max()
 
-    candidates = [
-        value
-        for value, count in counts.items()
-        if count == highest_count
-    ]
+    candidates = [value for value, count in counts.items() if count == highest_count]
 
     if len(candidates) == 1:
         return candidates[0]
