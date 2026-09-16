@@ -59,10 +59,16 @@ def test_local_runtime_command(monkeypatch):
     cmd = runtime.server_command(Path("model with spaces.gguf"), 8081, 16384)
     assert cmd[cmd.index("--host") + 1] == "127.0.0.1"
     assert cmd[cmd.index("--model") + 1] == "model with spaces.gguf"
+    assert int(cmd[cmd.index("--threads") + 1]) >= 1
+    assert cmd[cmd.index("--batch-size") + 1] == "512"
 
 
 def test_client_validates_structured_response():
+    calls = 0
+
     def handler(request):
+        nonlocal calls
+        calls += 1
         body = json.loads(request.content)
         assert body["response_format"]["schema"]["properties"]["columns"]
         assert body["chat_template_kwargs"] == {"enable_thinking": False}
@@ -71,8 +77,16 @@ def test_client_validates_structured_response():
             json={"choices": [{"finish_reason": "stop", "message": {"content": '{"columns":[]}'}}]},
         )
 
-    result = LocalModel(transport=httpx.MockTransport(handler)).analyze("schema", [], SchemaReport)
+    client = LocalModel(transport=httpx.MockTransport(handler))
+    result = client.analyze("schema", [], SchemaReport)
+    cached = client.analyze("schema", [], SchemaReport)
     assert result.columns == []
+    assert cached.columns == [] and calls == 1
+    assert client.metrics == {
+        "requests": 1,
+        "cache_hits": 1,
+        "request_seconds": pytest.approx(0, abs=1),
+    }
 
 
 @pytest.mark.parametrize(
@@ -102,6 +116,8 @@ def test_no_external_model_endpoint():
         LocalModel("https://example.com")
 
 
-@pytest.mark.parametrize("role", ["schema", "structured", "categories", "text", "validation"])
+@pytest.mark.parametrize(
+    "role", ["schema", "structured", "categories", "text", "validation", "adaptive"]
+)
 def test_prompt_exists(role):
     assert load_prompt(role).startswith("#")

@@ -1,5 +1,6 @@
 """Normalize explicitly selected scalar category values in small batches."""
 
+import os
 import re
 from typing import get_args
 
@@ -18,7 +19,9 @@ def column_position(df, column):
     return matches[0]
 
 
-def run_categories(prepared: PreparedData, column: str, category: str, model=None) -> StageResult:
+def run_categories(
+    prepared: PreparedData, column: str, category: str, model=None, *, batch_size: int | None = None
+) -> StageResult:
     if not isinstance(prepared, PreparedData):
         raise TypeError("Category inference requires PreparedData")
     if category not in get_args(Category):
@@ -26,6 +29,9 @@ def run_categories(prepared: PreparedData, column: str, category: str, model=Non
     df = prepared.dataframe()
     position = column_position(df, column)
     result = StageResult(df.copy(deep=True), "categories")
+    batch_size = batch_size or int(os.getenv("QWEN_CATEGORY_BATCH_SIZE", "20"))
+    if not 1 <= batch_size <= 50:
+        raise ValueError("Category batch size must be between 1 and 50")
     eligible = []
     known = {}
     multi_values = {}
@@ -87,12 +93,13 @@ def run_categories(prepared: PreparedData, column: str, category: str, model=Non
             proposals.append(item)
         return returned
 
-    for start in range(0, len(eligible), 5):
-        batch = eligible[start : start + 5]
+    for start in range(0, len(eligible), batch_size):
+        batch = eligible[start : start + batch_size]
         returned = accept(batch, request(batch))
-        for missing in set(batch) - returned:
-            single_returned = accept([missing], request([missing]))
-            if missing not in single_returned:
+        missing_values = [value for value in batch if value not in returned]
+        recovered = accept(missing_values, request(missing_values)) if missing_values else set()
+        for missing in missing_values:
+            if missing not in recovered:
                 row_indices = [
                     row for row, value in enumerate(df.iloc[:, position]) if value == missing
                 ]
@@ -193,6 +200,7 @@ def run_categories(prepared: PreparedData, column: str, category: str, model=Non
         "input_provenance": prepared.provenance,
         "knowledge_base_matches": len(known),
         "multi_value_inputs": len(multi_values),
+        "batch_size": batch_size,
         "mappings": [item.model_dump() for item in proposals],
     }
     return result

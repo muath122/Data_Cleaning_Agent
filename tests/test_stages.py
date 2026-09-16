@@ -190,7 +190,8 @@ def test_categories_missing_items_are_flagged():
     client = FakeCategories(bad_batch=True)
     result = run_categories(data, "التخصص", "Major", client)
     assert not any(issue["rule"] == "missing_category_mapping" for issue in result.issues)
-    assert len(client.calls) == 10
+    assert len(client.calls) == 3
+    assert result.details["batch_size"] == 20
     assert data.model_dump() == before
 
 

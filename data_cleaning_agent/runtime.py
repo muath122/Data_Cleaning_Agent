@@ -53,6 +53,7 @@ def server_command(model_path: Path, port: int, context_size: int) -> list[str]:
             "llama-server was not found. Install llama.cpp (see README), "
             "or set LLAMA_SERVER to the full executable path. Qwen weights remain cached."
         )
+    threads = os.getenv("QWEN_THREADS", str(max(1, min(os.cpu_count() or 4, 8))))
     return [
         executable,
         "--model",
@@ -67,6 +68,14 @@ def server_command(model_path: Path, port: int, context_size: int) -> list[str]:
         str(context_size),
         "--parallel",
         "1",
+        "--threads",
+        threads,
+        "--threads-batch",
+        threads,
+        "--batch-size",
+        os.getenv("QWEN_BATCH_SIZE", "512"),
+        "--ubatch-size",
+        os.getenv("QWEN_UBATCH_SIZE", "128"),
         "--n-gpu-layers",
         os.getenv("QWEN_GPU_LAYERS", "999"),
         "--jinja",

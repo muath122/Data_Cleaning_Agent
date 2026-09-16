@@ -3,6 +3,7 @@
 import hashlib
 import json
 import re
+import time
 from pathlib import Path
 
 import pandas as pd
@@ -278,12 +279,16 @@ def run_table(
 
 
 def run_pipeline(input_path, output_dir, *, model=None, progress=None) -> dict:
+    pipeline_started = time.perf_counter()
+    shared_model = model or LocalModel()
+    owns_model = model is None
     output = Path(output_dir)
     output.mkdir(parents=True, exist_ok=False)
     summary = {"tables": [], "skipped_empty_sheets": 0, "failed_tables": 0}
     tables = list(discover_tables(input_path))
     total = len(tables)
     for table_index, (path, sheet) in enumerate(tables):
+        table_started = time.perf_counter()
         if progress:
             progress(
                 {
@@ -306,7 +311,7 @@ def run_pipeline(input_path, output_dir, *, model=None, progress=None) -> dict:
         try:
             cleaned, stages = run_table(
                 df,
-                model=model,
+                model=shared_model,
                 progress=(
                     lambda stage, i=table_index, p=path, s=sheet: progress(
                         {
@@ -348,6 +353,7 @@ def run_pipeline(input_path, output_dir, *, model=None, progress=None) -> dict:
                         any(i.get("rule") == "schema_model_fallback" for i in stage.issues)
                         for stage in stages
                     ),
+                    "duration_seconds": round(time.perf_counter() - table_started, 3),
                 }
             )
         except Exception as exc:
@@ -362,6 +368,9 @@ def run_pipeline(input_path, output_dir, *, model=None, progress=None) -> dict:
             )
     summary["processed_tables"] = sum("output" in table for table in summary["tables"])
     summary["total_rows"] = sum(table.get("rows", 0) for table in summary["tables"])
+    summary["duration_seconds"] = round(time.perf_counter() - pipeline_started, 3)
+    if hasattr(shared_model, "metrics"):
+        summary["model_metrics"] = dict(shared_model.metrics)
     (output / "summary.json").write_text(
         json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8"
     )
@@ -369,4 +378,6 @@ def run_pipeline(input_path, output_dir, *, model=None, progress=None) -> dict:
         progress(
             {"event": "complete", "table_index": total, "total_tables": total, "stage": "complete"}
         )
+    if owns_model and hasattr(shared_model, "close"):
+        shared_model.close()
     return summary
