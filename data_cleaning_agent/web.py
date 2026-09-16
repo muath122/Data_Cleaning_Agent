@@ -133,16 +133,21 @@ def run_results(run_id: str):
         report_path = output / item["output"].replace(".cleaned.csv", ".report.json")
         report = json.loads(report_path.read_text(encoding="utf-8"))
         changes = []
+        adaptive_decisions = []
         for stage in report["stages"]:
             for change in stage["changes"][:12]:
                 changes.append({"stage": stage["stage"], **change})
+            if stage["stage"] == "adaptive":
+                adaptive_decisions = stage.get("details", {}).get("decisions", [])
         tables.append(
             {
                 **item,
                 "columns_preview": list(preview.columns)[:8],
                 "rows_preview": preview.iloc[:, :8].to_dict(orient="records"),
                 "changes_preview": changes[:20],
+                "adaptive_decisions": adaptive_decisions,
                 "download": f"/api/runs/{run_id}/files/{item['output']}",
+                "report_download": f"/api/runs/{run_id}/files/{report_path.name}",
             }
         )
     return {"summary": summary, "tables": tables}

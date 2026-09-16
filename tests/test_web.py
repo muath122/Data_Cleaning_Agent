@@ -15,6 +15,8 @@ def test_gui_loads():
     response = TestClient(web.app).get("/")
     assert response.status_code == 200
     assert "Sift" in response.text
+    assert "Adaptive Planner" not in response.text
+    assert "aria-live" in response.text and "Skip to main content" in response.text
 
 
 def test_upload_queues_supported_table(tmp_path, monkeypatch):
