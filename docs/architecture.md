@@ -9,22 +9,23 @@ or separate model process per role.
 
 ```mermaid
 flowchart LR
-    I[CSV / Excel] --> P[Privacy: planned]
+    I[CSV / Excel] --> P[Privacy masking]
     P --> S[Schema]
-    S --> D[Structured data]
+    S --> A[Guarded adaptive planner]
+    A --> D[Structured data]
     D --> C[Categories]
     C --> T[Text]
-    T --> V[Validation: planned]
-    V --> R[Identity restoration: planned]
+    T --> V[Read-only validation]
+    V --> R[Identity restoration]
     R --> O[Final export]
     Q[One local Qwen server] --- S
     Q --- C
     Q -. optional university review .- D
 ```
 
-This is the intended pipeline. Current commands run individual stages; `pipeline`
-lists missing prerequisites and exits unsuccessfully. The leader's revised assignment
-takes precedence over the earlier Colab diagram. Desktop execution is the current target.
+This is the implemented end-to-end pipeline. One local model server handles every
+model-backed role sequentially. The adaptive planner receives privacy-preserving
+structural profiles and returns only validated operation contracts; Python owns execution.
 
 ## Responsibilities
 
@@ -34,12 +35,13 @@ takes precedence over the earlier Colab diagram. Desktop execution is the curren
 | Structured data | Local phone/email/ID/date/gender/attendance rules and university formatting | Skills, free-text rewriting, fuzzy auto-merging |
 | Categories | Scalar aliases in a selected category | Splitting mixed answers, treating preferences as qualifications |
 | Text | Explicit text columns, whitespace, placeholder flags | Translation, summarization, ranking |
-| Validation | Future issue detection | Repairing values, deleting rows, rerunning stages |
+| Adaptive planner | Novel structural-pattern proposals from an allowlisted operation catalog | Arbitrary code, silent semantic guesses, automatic row removal |
+| Validation | Read-only issue detection | Repairing values, deleting rows, rerunning stages |
 | Python orchestration | Readiness, I/O, model boundary, ordering | Claiming missing stages ran |
 
 Structured data uses tested Python rules and an optional UniversityJudgment response
-for review proposals. The validation/integration owner coordinates contracts
-with schema/text and implements the missing privacy and pipeline components.
+for review proposals. Python policy gates adaptive operations by risk, confidence,
+protected-column rules, and change-volume limits before applying them to a copy.
 
 ## Current interfaces
 
@@ -57,7 +59,8 @@ with schema/text and implements the missing privacy and pipeline components.
 - `export_result(result, output, source=None)` writes separate stage-labeled files.
 
 `PreparedData` contains `provenance`, `columns`, and rectangular `rows`. Provenance
-must be `synthetic` or `manually_sanitized`: caller attestation, not proof of anonymity.
+can be `synthetic`, `manually_sanitized`, or `locally_pseudonymized`; it records how
+the payload was prepared rather than proving anonymity.
 
 `StageResult` contains a copied dataframe, stage, changes, issues, and details.
 The JSON report includes status and `pipeline_validated: false`. Successful stage
@@ -66,7 +69,8 @@ execution does not establish that the data is semantically correct.
 Row and column references are zero-based source positions, independent of dataframe
 labels. Raw-file metadata includes `first_data_row`; source Excel row number is
 `first_data_row + row_index`. Prepared references identify the input `rows` array.
-No implemented stage removes or reorders source rows.
+Only deterministic padding/header rules remove rows automatically. Adaptive row-removal
+proposals are review-only and never execute automatically.
 
 ## Applying decisions
 
@@ -86,10 +90,10 @@ increase the startup context or explicitly prepare a narrower table.
 
 ## Privacy and export limits
 
-Automatic identity masking, vault management, and restoration remain unfinished.
-Raw-file model commands stop before reading or transmitting the file. Do not relabel
-private input as sanitized JSON. The model client accepts localhost HTTP only and
-disables proxy environment settings and redirects.
+Automatic identity masking, in-memory vault management, and restoration are implemented.
+The model client accepts localhost HTTP only and disables proxy environment settings
+and redirects. Adaptive profiling exposes broad character classes and punctuation,
+not the original cell contents.
 
 Text masking is optional and incomplete. Original columns and change reports retain
 values, so neither is anonymized. Missing flags do not establish question applicability.
