@@ -29,7 +29,7 @@ from data_cleaning_agent.structured.rules import normalize_value
 )
 def test_saudi_phone_formats(value):
     result = normalize_value(value, "phone")
-    assert result.value == "+966551234567" and result.issue is None
+    assert result.value == "0551234567" and result.issue is None
 
 
 @pytest.mark.parametrize(
@@ -104,7 +104,7 @@ def test_attendance(value, expected):
 def test_stage_preserves_columns_rows_blanks_and_unrelated_values():
     df = pd.DataFrame(
         {
-            "phone_2": ["0551234567", None],
+            "phone_2": ["+966551234567", None],
             "personal_email": ["A@EXAMPLE.COM", None],
             "university_email": ["B@EXAMPLE.COM", None],
             "gender": ["ذكر", "أنثى"],
@@ -119,7 +119,7 @@ def test_stage_preserves_columns_rows_blanks_and_unrelated_values():
     assert list(result.dataframe.columns) == list(df.columns)
     assert len(result.dataframe) == 2
     assert result.dataframe.at[1, "phone_2"] is None
-    assert result.dataframe.at[0, "phone_2"] == "+966551234567"
+    assert result.dataframe.at[0, "phone_2"] == "0551234567"
     assert result.dataframe["gender"].tolist() == ["Male", "Female"]
     assert result.dataframe["attendance"].tolist() == ["Present", "Absent"]
     pd.testing.assert_series_equal(df["arbitrary_id"], result.dataframe["arbitrary_id"])

@@ -54,7 +54,7 @@ def test_full_pipeline_masks_model_input_and_preserves_source(tmp_path):
     assert summary["processed_tables"] == 1 and summary["failed_tables"] == 0
     result = pd.read_csv(next(output.glob("*.cleaned.csv")), dtype=str)
     assert result.loc[0, "email"] == "a@x.com"
-    assert result.loc[0, "phone"] == "+966551234567"
+    assert result.loc[0, "phone"] == "0551234567"
     assert result.loc[0, "major"] == "Computer Science"
     assert result.loc[0, "feedback"] == "good"
     assert source.read_text(encoding="utf-8").startswith("E-mail")
