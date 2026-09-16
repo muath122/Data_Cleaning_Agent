@@ -1,6 +1,6 @@
 import pandas as pd
 
-from data_cleaning_agent.contracts import CategoryReport, SchemaReport
+from data_cleaning_agent.contracts import AdaptivePlan, CategoryReport, SchemaReport
 from data_cleaning_agent.pipeline import (
     _remove_embedded_headers,
     _remove_padding_rows,
@@ -11,6 +11,9 @@ from data_cleaning_agent.pipeline import (
 
 class PipelineModel:
     def analyze(self, role, payload, response_type):
+        if role == "adaptive":
+            assert response_type is AdaptivePlan
+            return AdaptivePlan(summary="No unfamiliar patterns", operations=[])
         if role == "schema":
             names = ["email", "phone", "major", "feedback"]
             kinds = ["email", "phone", "categorical", "free_text"]
@@ -61,6 +64,7 @@ def test_full_pipeline_masks_model_input_and_preserves_source(tmp_path):
     assert [event["stage"] for event in events] == [
         "reading",
         "schema",
+        "adaptive",
         "structured",
         "categories",
         "text",

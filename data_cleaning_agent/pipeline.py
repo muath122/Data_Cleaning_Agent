@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from .adaptive import run_adaptive
 from .contracts import StageResult
 from .io import read_table
 from .model import LocalModel, ModelError
@@ -230,10 +231,13 @@ def run_table(
     current, embedded_headers = _remove_embedded_headers(current)
     current, padding_rows = _remove_padding_rows(current)
     current, whitespace = _trim_scalar_whitespace(current)
+    notify("adaptive")
+    adaptive = run_adaptive(current, model=client)
+    current = adaptive.dataframe
     notify("structured")
     structured = run_structured(current)
     current = structured.dataframe
-    stages = [schema, embedded_headers, padding_rows, whitespace, structured]
+    stages = [schema, embedded_headers, padding_rows, whitespace, adaptive, structured]
     for column in list(current.columns):
         base = re.sub(r"_\d+$", "", str(column))
         category = CATEGORY_NAMES.get(base)

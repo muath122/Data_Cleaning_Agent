@@ -76,6 +76,36 @@ class CategoryReport(StrictModel):
     results: list[CategoryMapping]
 
 
+class AdaptiveOperation(StrictModel):
+    operation: Literal[
+        "literal_replace",
+        "regex_replace",
+        "normalize_whitespace",
+        "flag_values",
+        "remove_rows",
+    ]
+    column: str
+    match: str | None = None
+    replacement: str | None = None
+    confidence: float = Field(ge=0, le=1)
+    risk: Literal["low", "medium", "high"]
+    reason: str
+
+    @model_validator(mode="after")
+    def required_arguments(self):
+        if self.operation in {"literal_replace", "regex_replace"}:
+            if not self.match or self.replacement is None:
+                raise ValueError("Replacement operations require match and replacement")
+        elif self.match is not None or self.replacement is not None:
+            raise ValueError("This operation does not accept match or replacement")
+        return self
+
+
+class AdaptivePlan(StrictModel):
+    summary: str
+    operations: list[AdaptiveOperation] = Field(max_length=20)
+
+
 class UniversityJudgment(StrictModel):
     value_a: str
     value_b: str

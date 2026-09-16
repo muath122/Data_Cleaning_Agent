@@ -16,7 +16,7 @@ class ModelError(RuntimeError):
 
 
 def load_prompt(role: str) -> str:
-    if role not in {"schema", "structured", "categories", "text", "validation"}:
+    if role not in {"schema", "structured", "categories", "text", "validation", "adaptive"}:
         raise ValueError("Unknown role")
     return (PROMPT_DIR / f"{role}.md").read_text(encoding="utf-8")
 

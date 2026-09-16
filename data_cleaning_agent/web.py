@@ -40,13 +40,14 @@ def _work(run_id: str, input_dir: Path, output_dir: Path):
         stage_order = {
             "reading": 0,
             "schema": 1,
-            "structured": 2,
-            "categories": 3,
-            "text": 4,
-            "validation": 5,
-            "complete": 6,
+            "adaptive": 2,
+            "structured": 3,
+            "categories": 4,
+            "text": 5,
+            "validation": 6,
+            "complete": 7,
         }
-        fraction = stage_order.get(event.get("stage"), 0) / 6
+        fraction = stage_order.get(event.get("stage"), 0) / 7
         percent = min(99, round(100 * (event.get("table_index", 0) + fraction) / total))
         _update(run_id, status="running", progress=percent, **event)
 

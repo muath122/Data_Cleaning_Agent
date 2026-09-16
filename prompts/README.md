@@ -6,6 +6,7 @@ One local Qwen server serves all roles. Editing Markdown does not implement tool
 | File | Runtime use |
 | --- | --- |
 | `schema.md` | Loaded by schema inference |
+| `adaptive.md` | Constrained plan proposals from privacy-preserving structural profiles |
 | `categories.md` | Loaded by category inference |
 | `text.md` | Contract for deterministic text cleanup |
 | `structured.md` | Deterministic rules contract and optional Qwen university review |
