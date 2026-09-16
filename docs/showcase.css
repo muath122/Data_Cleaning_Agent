@@ -12,3 +12,24 @@ nav{padding-top:22px}.logo span{background:#4285f4;color:#fff;border-radius:50%}
 .pipeline{background:#f8fafd;color:#202124;border-block:1px solid #e8eaed}.light>span{color:#ea4335}.light h2{color:#202124}.pipeline-line:before{background:#d9dde3}.pipeline-line b{color:#4285f4}.pipeline-line i{background:#fff;border-color:#f8fafd;box-shadow:0 0 0 3px #4285f4}.pipeline-line>div:nth-child(2) b{color:#ea4335}.pipeline-line>div:nth-child(2) i{box-shadow:0 0 0 3px #ea4335}.pipeline-line>div:nth-child(3) b{color:#f9ab00}.pipeline-line>div:nth-child(3) i{box-shadow:0 0 0 3px #fbbc04}.pipeline-line>div:nth-child(4) b,.pipeline-line>div:nth-child(5) b{color:#188038}.pipeline-line>div:nth-child(4) i,.pipeline-line>div:nth-child(5) i{box-shadow:0 0 0 3px #34a853}.pipeline-line p{color:#5f6368}
 .privacy-mark{background:#e8f0fe}.privacy-mark svg{stroke:#4285f4}.cta{background:#4285f4;border-radius:22px}.cta:after{background:#fbbc04}.cta span{color:#fff}.cta p{color:#e8f0fe}.lime{background:#fff;color:#1967d2}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;scroll-behavior:auto!important}}
+
+/* Accessible GDG on Campus presentation */
+.skip-link{position:fixed;top:10px;left:10px;z-index:20;background:#fff;color:#1967d2;padding:10px 14px;border-radius:8px;transform:translateY(-150%)}
+.skip-link:focus{transform:none}
+button,a{touch-action:manipulation}
+button:focus-visible,a:focus-visible{outline:3px solid #8ab4f8;outline-offset:3px}
+section[id]{scroll-margin-top:20px}
+.table-label{font-size:10px;font-weight:700;color:var(--muted)}
+.adaptive{max-width:1160px;margin:0 auto;padding:110px 30px}
+.adaptive>div:first-child{max-width:780px}
+.adaptive span{font-size:11px;font-weight:700;letter-spacing:.16em;color:#ea4335}
+.adaptive h2{font:800 50px/1.02 Manrope;letter-spacing:-.045em;margin:17px 0;text-wrap:balance}
+.adaptive>div>p{color:#5f6368;font-size:17px;line-height:1.7}
+.authority-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:42px}
+.authority-grid article{padding:25px;border:1px solid #dadce0;border-radius:18px;background:#fff}
+.authority-grid article:nth-child(1){border-top:5px solid #34a853}
+.authority-grid article:nth-child(2){border-top:5px solid #f9ab00}
+.authority-grid article:nth-child(3){border-top:5px solid #ea4335}
+.authority-grid b{font:700 17px Manrope}
+.authority-grid p{color:#5f6368;line-height:1.6;font-size:14px}
+@media(max-width:800px){.authority-grid{grid-template-columns:1fr}}
