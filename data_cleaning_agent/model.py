@@ -54,7 +54,7 @@ class LocalModel:
             ],
             "response_format": {"type": "json_object", "schema": response_type.model_json_schema()},
             "temperature": 0.0,
-            "max_tokens": 8192,
+            "max_tokens": 2048,
             "chat_template_kwargs": {"enable_thinking": False},
             "stream": False,
         }

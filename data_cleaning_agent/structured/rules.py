@@ -37,18 +37,38 @@ def phone(value):
     s = numeric_text(value)
     if s is None:
         return Normalized(value, "invalid_phone")
-    s = re.sub(r"[\s\-()]", "", s)
-    if re.fullmatch(r"009665[0-9]{8}", s):
-        s = "+" + s[2:]
-    elif re.fullmatch(r"9665[0-9]{8}", s):
-        s = "+" + s
-    elif re.fullmatch(r"05[0-9]{8}", s):
-        s = "+966" + s[1:]
-    elif re.fullmatch(r"5[0-9]{8}", s):
-        s = "+966" + s
+
+   
+    s = str(s).translate(
+        str.maketrans(
+            "٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹",
+            "01234567890123456789",
+        )
+    )
+    s = re.sub(r"[\s\-\(\)\.]", "", s)
+
+    
     if re.fullmatch(r"\+9665[0-9]{8}", s):
+        return Normalized("0" + s[4:])
+
+    
+    if re.fullmatch(r"009665[0-9]{8}", s):
+        return Normalized("0" + s[5:])
+    if re.fullmatch(r"9665[0-9]{8}", s):
+        return Normalized("0" + s[3:])
+
+   
+    if re.fullmatch(r"05[0-9]{8}", s):
         return Normalized(s)
+
+
+    if re.fullmatch(r"5[0-9]{8}", s):
+        return Normalized("0" + s)
+
+   
     return Normalized(value, "unsupported_or_invalid_phone")
+
+
 
 
 def email(value):
