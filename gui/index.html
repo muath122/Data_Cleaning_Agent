@@ -6,6 +6,7 @@
   <meta name="description" content="Clean Arabic and English workshop form exports with private, local AI.">
   <title>Sift — Private, Local Data Cleaning</title>
   <link rel="stylesheet" href="/assets/app.css">
+  
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to main content</a>
@@ -45,7 +46,8 @@
 
     <section class="results hidden" id="results-view" aria-live="polite">
       <div class="result-head"><div><div class="eyebrow">RUN COMPLETE</div><h2>Your Data Is Ready</h2><p>Review what changed, inspect a preview, then download each cleaned table.</p></div><button class="secondary" id="new-run">New Run</button></div>
-      <div class="metrics" id="metrics"></div><div class="result-tabs" id="result-tabs"></div><div id="result-detail"></div>
+     <div class="kpi-row" id="kpi-row"></div>
+     <div class="metrics" id="metrics"></div><div class="result-tabs" id="result-tabs"></div><div id="result-detail"></div>
     </section>
 
     <section class="error hidden" id="error-view" aria-live="assertive"><span aria-hidden="true">!</span><h2>Something Needs Attention</h2><p id="error-message"></p><button class="secondary" id="start-again">Start Again</button></section>
