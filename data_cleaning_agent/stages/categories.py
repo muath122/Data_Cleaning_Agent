@@ -11,7 +11,6 @@ from ..knowledge import canonical_value
 from ..model import LocalModel, ModelError
 from ..privacy import PreparedData
 
-
 MULTI_VALUE_CATEGORIES = {"Skills", "Tools", "Programming languages", "Departments"}
 
 
@@ -41,7 +40,11 @@ def run_categories(
     for row, value in enumerate(df.iloc[:, position]):
         if pd.isna(value) or (isinstance(value, str) and not value.strip()):
             continue
-        if category == "Major" and isinstance(value, str) and re.fullmatch(r"\d{5,}", value.strip()):
+        if (
+            category == "Major"
+            and isinstance(value, str)
+            and re.fullmatch(r"\d{5,}", value.strip())
+        ):
             result.issues.append(
                 {
                     "row_index": row,
@@ -65,8 +68,7 @@ def run_categories(
                 part.strip() for part in re.split(rf"\s*{separators}\s*", value) if part.strip()
             ]
             unknown_prose = category == "Programming languages" and any(
-                canonical_value(part, category) is None and len(part.split()) > 4
-                for part in parts
+                canonical_value(part, category) is None and len(part.split()) > 4 for part in parts
             )
             if len(parts) > 1 and not unknown_prose:
                 multi_values[value] = parts
