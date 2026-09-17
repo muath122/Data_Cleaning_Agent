@@ -46,6 +46,24 @@ def phone(value):
     )
 
     s = re.sub(r"[\s\-\(\)\.]", "", s)
+
+    # 0966 + 5 + 8 digits → 05 + 8 digits
+# مثال: 0966527361987 → 0527361987
+    if re.fullmatch(r"09665[0-9]{8}", s):
+        return Normalized("05" + s[5:], "extra_digits_removed")
+    # 9665 is noise when followed by a 9-digit local number
+# مثال: 9665500697740 -> 0500697740
+    if re.fullmatch(r"9665(5[0-9]{8})", s):
+        return Normalized("0" + s[4:], "extra_digits_removed")
+    # Remove embedded 966 when the remaining value is a valid Saudi mobile number
+# مثال: 0966507883466 -> 0507883466
+    if s.count("966") == 1:
+      candidate = s.replace("966", "")
+      if re.fullmatch(r"05[0-9]{8}", candidate):
+         return Normalized(candidate, "extra_digits_removed")
+
+
+
     
         # حالة: 9665 05XXXXXXXX
     if re.fullmatch(r"9665(05[0-9]{8})", s):
