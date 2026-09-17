@@ -141,7 +141,7 @@ def run_results(run_id: str):
             values = values[values != ""]
 
             if values.empty:
-             continue
+                continue
 
             unique_count = values.nunique()
             total_count = len(values)
@@ -149,7 +149,7 @@ def run_results(run_id: str):
 
             # Skip columns that are unlikely to produce useful distributions.
             if unique_count < 2:
-              continue
+                continue
 
             if unique_count > 12:
                 continue
@@ -161,8 +161,8 @@ def run_results(run_id: str):
 
             data_insights.append(
                 {
-                     "column": column,
-                     "total": total_count,
+                    "column": column,
+                    "total": total_count,
                     "categories": [
                         {
                             "value": str(category),

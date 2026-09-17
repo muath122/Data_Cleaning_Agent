@@ -254,9 +254,7 @@ def test_programming_language_prose_is_sent_to_model_without_fragmenting():
 
     value = "سبق لي استخدام عدة لغات وأهمها بايثون، سي، جافا، ار"
     model = WholeSentenceModel()
-    data = PreparedData(
-        provenance="synthetic", columns=["programming_languages"], rows=[[value]]
-    )
+    data = PreparedData(provenance="synthetic", columns=["programming_languages"], rows=[[value]])
     result = run_categories(data, "programming_languages", "Programming languages", model)
     assert model.values == [value]
     assert result.dataframe.at[0, "programming_languages"] == "Python; C; Java; R"
@@ -293,9 +291,7 @@ def test_committee_and_role_form_choices_use_concise_canonical_values():
             ["لجنة البحث وكتابة المحتوى"],
         ],
     )
-    committee_result = run_categories(
-        committee, "join_committee", "Committee", ModelMustNotRun()
-    )
+    committee_result = run_categories(committee, "join_committee", "Committee", ModelMustNotRun())
     assert committee_result.dataframe["join_committee"].tolist() == [
         "Project Management",
         "Public Relations",
