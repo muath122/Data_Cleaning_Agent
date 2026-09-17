@@ -37,18 +37,44 @@ def phone(value):
     s = numeric_text(value)
     if s is None:
         return Normalized(value, "invalid_phone")
-    s = re.sub(r"[\s\-()]", "", s)
-    if re.fullmatch(r"009665[0-9]{8}", s):
-        s = "+" + s[2:]
-    elif re.fullmatch(r"9665[0-9]{8}", s):
-        s = "+" + s
-    elif re.fullmatch(r"05[0-9]{8}", s):
-        s = "+966" + s[1:]
-    elif re.fullmatch(r"5[0-9]{8}", s):
-        s = "+966" + s
+
+    s = str(s).translate(
+        str.maketrans(
+            "٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹",
+            "01234567890123456789",
+        )
+    )
+
+    s = re.sub(r"[\s\-\(\)\.]", "", s)
+    
+        # حالة: 9665 05XXXXXXXX
+    if re.fullmatch(r"9665(05[0-9]{8})", s):
+        return Normalized(s[4:], "extra_digits_removed")
+
+
     if re.fullmatch(r"\+9665[0-9]{8}", s):
+        return Normalized("0" + s[4:])
+
+    if re.fullmatch(r"009665[0-9]{8}", s):
+        return Normalized("0" + s[5:])
+
+    if re.fullmatch(r"9665[0-9]{8}", s):
+        return Normalized("0" + s[3:])
+
+    if re.fullmatch(r"05[0-9]{8}", s):
         return Normalized(s)
+
+    if re.fullmatch(r"5[0-9]{8}", s):
+        return Normalized("0" + s)
+
+    # استخراج رقم سعودي صحيح إذا كانت هناك أرقام زائدة
+    matches = re.findall(r"05[0-9]{8}", s)
+    if len(matches) == 1:
+        return Normalized(matches[0], "extra_digits_removed")
+
     return Normalized(value, "unsupported_or_invalid_phone")
+
+
 
 
 def email(value):

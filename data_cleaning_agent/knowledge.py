@@ -57,5 +57,31 @@ def alias_map(category: str, path: str | None = None) -> dict[str, str]:
 
 
 def canonical_value(value: str, category: str) -> str | None:
-    """Return a reviewed canonical value, or None when the knowledge base is unsure."""
-    return alias_map(category).get(normalized_key(value))
+    """Return the best reviewed canonical value, including fuzzy typo matching."""
+    if not value:
+        return None
+
+    normalized = normalized_key(value)
+
+    # 1. Exact / normalized match
+    mappings = alias_map(category)
+    if normalized in mappings:
+        return mappings[normalized]
+
+    # 2. Fuzzy matching for spelling mistakes
+    from difflib import SequenceMatcher
+
+    best_match = None
+    best_score = 0.0
+
+    for alias, canonical in mappings.items():
+        score = SequenceMatcher(None, normalized, alias).ratio()
+
+        if score > best_score:
+            best_score = score
+            best_match = canonical
+
+    if best_score >= 0.80:
+        return best_match
+
+    return None

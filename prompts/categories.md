@@ -153,24 +153,100 @@ campus and audience. Do not merge separate men's and women's campuses. A univers
 name appearing in a branch column is a schema anomaly, not a campus alias; preserve
 it and mark it for review.
 
-MAJOR
+## MAJOR — Canonical English Standardization
 
 Academic majors and fields of study.
 
+For Major values, the final canonical_value MUST use the canonical English
+major name defined by the reviewed knowledge base whenever a clear match exists.
+
+Rules:
+
+1. If the value is already a canonical English major, keep it unchanged.
+
+2. If the value is an Arabic major, identify its clear semantic English
+   equivalent and return the corresponding canonical English major.
+
+3. If the value is an English alias, abbreviation, spelling variation,
+   capitalization variation, or common alternative name, map it to the
+   corresponding canonical English major.
+
+4. Never return an Arabic value as canonical_value for Major when a reviewed
+   English canonical value exists.
+
+5. Do not invent a new canonical major name when the value clearly matches
+   an existing reviewed major.
+
+6. Do not merge different academic majors merely because they are related.
+
 Examples:
 
-Computer Science
-Artificial Intelligence
-Software Engineering
-Computer Engineering
+"علوم الحاسب"
+"علوم حاسب"
+"CS"
+"Computer Sciences"
+"computer science"
+
+→ Computer Science
+
+"هندسة البرمجيات"
+"هندسة برمجيات"
+"SE"
+"Software Engineer"
+
+→ Software Engineering
+
+"الذكاء الاصطناعي"
+"ذكاء اصطناعي"
+"AI"
+
+→ Artificial Intelligence
+
+"تقنية المعلومات"
+"تقنية معلومات"
+"IT"
+
+→ Information Technology
+
+"نظم المعلومات"
+"نظم معلومات"
+"IS"
+
+→ Information Systems
+
+"هندسة الحاسب"
+"هندسة حاسب"
+"CE"
+
+→ Computer Engineering
+
+"علم البيانات"
+"علوم البيانات"
+"Data Science"
+"DS"
+
+→ Data Science
+
+Do NOT automatically merge:
+
 Data Science
-Information Technology
-Cybersecurity
-Biology
+Data Analytics
+Data Analysis
 
-Arabic and English equivalents should be unified when clearly equivalent.
+Computer Science
+Computer Engineering
+Computer & Network Engineering
 
-Do NOT merge different academic majors merely because they are related.
+Artificial Intelligence
+Machine Learning
+Deep Learning
+
+If no clear canonical match exists, use:
+
+status = "needs_review"
+canonical_value = null
+
+The original_value MUST always be preserved exactly.
 
 ## Committee
 

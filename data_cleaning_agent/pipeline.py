@@ -149,6 +149,68 @@ def _trim_scalar_whitespace(df: pd.DataFrame) -> tuple[pd.DataFrame, StageResult
                 )
     return result.dataframe, result
 
+def _remove_duplicate_rows(
+    df: pd.DataFrame, threshold: float = 0.97
+) -> tuple[pd.DataFrame, StageResult]:
+    """Remove rows that are at least 97% similar to an earlier row."""
+    result = StageResult(df.copy(deep=True), "duplicates")
+
+    if len(df) < 2:
+        result.details = {
+            "duplicates_removed": 0,
+            "threshold": threshold,
+        }
+        return result.dataframe, result
+
+    from difflib import SequenceMatcher
+
+    def row_text(row):
+        return " | ".join(
+            "" if pd.isna(value) else str(value).strip().casefold()
+            for value in row
+        )
+
+    rows = [row_text(row) for _, row in df.iterrows()]
+    kept_rows = []
+    removed_rows = []
+
+    for index, current in zip(df.index, rows):
+        duplicate = False
+
+        for kept_index, kept in kept_rows:
+            similarity = SequenceMatcher(None, current, kept).ratio()
+
+            if similarity >= threshold:
+                duplicate = True
+
+                removed_rows.append(index)
+
+                result.changes.append(
+                    {
+                        "row_index": int(index),
+                        "rule": "similar_duplicate_removed",
+                        "matched_row_index": int(kept_index),
+                        "similarity": round(similarity, 4),
+                    }
+                )
+                break
+
+        if not duplicate:
+            kept_rows.append((index, current))
+
+    if removed_rows:
+        result.dataframe = (
+            df.drop(index=removed_rows)
+            .reset_index(drop=True)
+        )
+
+    result.details = {
+        "duplicates_removed": len(removed_rows),
+        "threshold": threshold,
+        "method": "SequenceMatcher",
+    }
+
+    return result.dataframe, result
 
 def _remove_output_timestamps(df: pd.DataFrame) -> tuple[pd.DataFrame, StageResult]:
     """Exclude form submission timestamps from cleaned deliverables."""
@@ -251,13 +313,22 @@ def run_table(
     current, embedded_headers = _remove_embedded_headers(current)
     current, padding_rows = _remove_padding_rows(current)
     current, whitespace = _trim_scalar_whitespace(current)
+    current, duplicates = _remove_duplicate_rows(current)
     notify("adaptive")
     adaptive = run_adaptive(current, model=client)
     current = adaptive.dataframe
     notify("structured")
     structured = run_structured(current)
     current = structured.dataframe
-    stages = [schema, embedded_headers, padding_rows, whitespace, adaptive, structured]
+    stages = [
+        schema,
+        embedded_headers,
+        padding_rows,
+        whitespace,
+        duplicates,
+        adaptive,
+        structured,
+    ]
     for column in list(current.columns):
         base = re.sub(r"_\d+$", "", str(column))
         category = CATEGORY_NAMES.get(base)

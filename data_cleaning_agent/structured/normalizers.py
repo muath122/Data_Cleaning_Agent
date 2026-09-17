@@ -22,7 +22,14 @@ def text(value):
         " ",
         str(value).translate(ARABIC_TO_WESTERN_DIGITS).strip(),
     )
+def normalize_phone(value):
+    """
+    Normalize Saudi mobile numbers to one format: 05XXXXXXXX.
+    """
+    if blank(value):
+        return value
 
+    s = str(value).translate(ARABIC_TO_WESTERN_DIGITS).strip()
 
 def header_key(column):
     """
