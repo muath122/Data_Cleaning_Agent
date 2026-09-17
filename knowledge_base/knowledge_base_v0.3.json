@@ -9,6 +9,7 @@
       "majors",
       "programming_languages",
       "technical_areas",
+      "roles",
       "main_committees",
       "sub_committees"
     ]
@@ -613,6 +614,30 @@
       "aliases": ["Robotics and Hardware", "Robotic(Arduino/Hardware)", "Robotics", "Arduino/Hardware"]
     }
   ],
+  "roles": [
+    {
+      "id": "ROLE_001",
+      "canonical_en": "Junior Developer",
+      "canonical_ar": "مطور مبتدئ",
+      "aliases": [
+        "Junior Developer",
+        "Junior Dev",
+        "Junior Devs",
+        "Junior Devs : أطمح لتطوير مهاراتي من خلال المشاريع والتجارب العملية."
+      ]
+    },
+    {
+      "id": "ROLE_002",
+      "canonical_en": "Core Developer",
+      "canonical_ar": "مطور أساسي",
+      "aliases": [
+        "Core Developer",
+        "Core Dev",
+        "Core Devs",
+        "Core Devs : أمتلك خبرة تقنية وأرغب في العمل على المشاريع مع الإشراف و التوجيه."
+      ]
+    }
+  ],
   "main_committees": [
     {
       "id": "MAIN_001",
@@ -652,6 +677,40 @@
         "إدارة العلاقات",
         "لجنة إدارة العلاقات",
         "لجنة العلاقات"
+      ]
+    },
+    {
+      "id": "MAIN_005",
+      "canonical_ar": "العلاقات العامة",
+      "canonical_en": "Public Relations",
+      "aliases": [
+        "Public Relations",
+        "Public Relations Committee",
+        "العلاقات العامة",
+        "لجنة العلاقات العامة"
+      ]
+    },
+    {
+      "id": "MAIN_006",
+      "canonical_ar": "الإعلام الرقمي والتصميم",
+      "canonical_en": "Digital Media and Design",
+      "aliases": [
+        "Digital Media and Design",
+        "Digital Media and Design Committee",
+        "الإعلام الرقمي والتصميم",
+        "الاعلام الرقمي و التصميم",
+        "لجنة الاعلام الرقمي و التصميم"
+      ]
+    },
+    {
+      "id": "MAIN_007",
+      "canonical_ar": "البحث وكتابة المحتوى",
+      "canonical_en": "Research and Content Writing",
+      "aliases": [
+        "Research and Content Writing",
+        "Research and Content Writing Committee",
+        "البحث وكتابة المحتوى",
+        "لجنة البحث وكتابة المحتوى"
       ]
     }
   ],

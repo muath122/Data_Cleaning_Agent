@@ -278,6 +278,41 @@ def test_target_areas_are_normalized_as_multiselect_departments():
     )
 
 
+def test_committee_and_role_form_choices_use_concise_canonical_values():
+    class ModelMustNotRun:
+        def analyze(self, *_args, **_kwargs):
+            raise AssertionError("reviewed form choices must not require the model")
+
+    committee = PreparedData(
+        provenance="synthetic",
+        columns=["join_committee"],
+        rows=[
+            ["لجنة العلاقات العامة"],
+            ["لجنة الاعلام الرقمي و التصميم"],
+            ["لجنة البحث وكتابة المحتوى"],
+        ],
+    )
+    committee_result = run_categories(
+        committee, "join_committee", "Committee", ModelMustNotRun()
+    )
+    assert committee_result.dataframe["join_committee"].tolist() == [
+        "Public Relations",
+        "Digital Media and Design",
+        "Research and Content Writing",
+    ]
+
+    role = PreparedData(
+        provenance="synthetic",
+        columns=["role"],
+        rows=[
+            ["Junior Devs : أطمح لتطوير مهاراتي من خلال المشاريع والتجارب العملية."],
+            ["Core Devs : أمتلك خبرة تقنية وأرغب في العمل على المشاريع مع الإشراف و التوجيه."],
+        ],
+    )
+    role_result = run_categories(role, "role", "Roles", ModelMustNotRun())
+    assert role_result.dataframe["role"].tolist() == ["Junior Developer", "Core Developer"]
+
+
 def test_model_alias_is_canonicalized_before_application():
     class AliasModel:
         def analyze(self, _role, payload, _response_type):

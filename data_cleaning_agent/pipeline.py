@@ -36,6 +36,7 @@ CATEGORY_NAMES = {
     "major": "Major",
     "committee": "Committee",
     "committee_name": "Committee",
+    "join_committee": "Committee",
     "skills": "Skills",
     "tools": "Tools",
     "programming_languages": "Programming languages",
