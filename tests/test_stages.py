@@ -162,6 +162,34 @@ def test_categories_use_knowledge_base_before_model():
     assert result.details["knowledge_base_matches"] == 4
 
 
+def test_major_knowledge_base_unifies_reviewed_arabic_english_and_typo_variants():
+    class ModelMustNotRun:
+        def analyze(self, *_args, **_kwargs):
+            raise AssertionError("reviewed major aliases must not require the model")
+
+    values = [
+        "Human Resources",
+        "Human Resources management",
+        "الموارد البشرية",
+        "موارد بشرية",
+        "ادراة الموارد البشرية",
+        "Data since",
+        "علوم بيانلت",
+        "تقنيه معلومات",
+        "امن سبراني",
+        "اداره نظم معلومات",
+    ]
+    result = run_categories(prepared(values), "التخصص", "Major", ModelMustNotRun())
+    assert result.dataframe.iloc[:5, 0].tolist() == ["Human Resources"] * 5
+    assert result.dataframe.iloc[5:7, 0].tolist() == ["Data Science"] * 2
+    assert result.dataframe.iloc[7:, 0].tolist() == [
+        "Information Technology",
+        "Cybersecurity",
+        "Management Information Systems",
+    ]
+    assert result.details["knowledge_base_matches"] == len(values)
+
+
 def test_model_alias_is_canonicalized_before_application():
     class AliasModel:
         def analyze(self, _role, payload, _response_type):

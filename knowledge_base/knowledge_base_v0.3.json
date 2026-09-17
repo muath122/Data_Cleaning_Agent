@@ -196,7 +196,8 @@
         "Cybersecurity",
         "cyber security",
         "الأمن السيبراني",
-        "امن سيبراني"
+        "امن سيبراني",
+        "امن سبراني"
       ]
     },
     {
@@ -208,7 +209,9 @@
         "Artificial intelligence",
         "artificial intelligence",
         "ذكاء اصطناعي",
-        "الذكاء الاصطناعي"
+        "الذكاء الاصطناعي",
+        "الذكاء الإصطناعي",
+        "كلية علوم وهندسة الحاسب- الذكاء الاصطناعي"
       ]
     },
     {
@@ -224,7 +227,10 @@
         "علوم بيانات وتحليلها",
         "علوم البيانات وتحليلها",
         "علوم بيانات",
-        "علوم وتحليل البيانات"
+        "علوم وتحليل البيانات",
+        "Data science and analytics",
+        "Data since",
+        "علوم بيانلت"
       ]
     },
     {
@@ -235,7 +241,8 @@
         "Information Technology",
         "IT",
         "تقنية المعلومات",
-        "تقنية معلومات"
+        "تقنية معلومات",
+        "تقنيه معلومات"
       ]
     },
     {
@@ -288,7 +295,8 @@
         "Digital Media",
         "الإعلام الرقمي",
         "اعلام رقمي",
-        "إعلام رقمي"
+        "إعلام رقمي",
+        "الاعلام الرقمي"
       ]
     },
     {
@@ -331,7 +339,10 @@
         "Human Resources",
         "HR",
         "الموارد البشرية",
-        "موارد بشرية"
+        "موارد بشرية",
+        "Human Resources Management",
+        "ادارة الموارد البشرية",
+        "ادراة الموارد البشرية"
       ]
     },
     {
@@ -352,7 +363,11 @@
         "Management Information Systems",
         "MIS",
         "نظم المعلومات الإدارية",
-        "نظم معلومات ادارية"
+        "نظم معلومات ادارية",
+        "ادارة نظم معلومات",
+        "اداره نظم معلومات",
+        "ادارة نظم المعلومات",
+        "Management Information System (MIS)"
       ]
     },
     {
@@ -363,6 +378,88 @@
         "Data Analytics",
         "Data Analysis",
         "تحليل البيانات"
+      ]
+    },
+    {
+      "id": "MAJ_020",
+      "canonical_en": "Graphic Design",
+      "canonical_ar": "التصميم الجرافيكي",
+      "aliases": [
+        "Graphic Design",
+        "تصميم جرافيك",
+        "تصميم الجرافيك"
+      ]
+    },
+    {
+      "id": "MAJ_021",
+      "canonical_en": "Supply Chain Management",
+      "canonical_ar": "إدارة سلاسل الإمداد",
+      "aliases": [
+        "Supply Chain",
+        "Supply Chain Management",
+        "إدارة سلاسل الإمداد",
+        "سلاسل الإمداد"
+      ]
+    },
+    {
+      "id": "MAJ_022",
+      "canonical_en": "Mechatronics Engineering",
+      "canonical_ar": "هندسة الميكاترونكس",
+      "aliases": [
+        "Mechatronics Engineering",
+        "Mechatronics",
+        "هندسة الميكاترونكس",
+        "هندسة ميكاترونيكس"
+      ]
+    },
+    {
+      "id": "MAJ_023",
+      "canonical_en": "Industrial and Systems Engineering",
+      "canonical_ar": "الهندسة الصناعية والنظم",
+      "aliases": [
+        "Industrial and Systems Engineering",
+        "Industrial Engineering and Systems",
+        "الهندسة الصناعية والنظم"
+      ]
+    },
+    {
+      "id": "MAJ_024",
+      "canonical_en": "Financial Accounting",
+      "canonical_ar": "المحاسبة المالية",
+      "aliases": [
+        "Financial Accounting",
+        "المحاسبة المالية",
+        "محاسبة مالية"
+      ]
+    },
+    {
+      "id": "MAJ_025",
+      "canonical_en": "Languages and Translation",
+      "canonical_ar": "اللغات والترجمة",
+      "aliases": [
+        "Languages and Translation",
+        "اللغات والترجمة",
+        "لغات وترجمة"
+      ]
+    },
+    {
+      "id": "MAJ_026",
+      "canonical_en": "Tourism and Archaeology",
+      "canonical_ar": "السياحة والآثار",
+      "aliases": [
+        "Tourism and Archaeology",
+        "السياحة والآثار",
+        "اثار وسياحه"
+      ]
+    },
+    {
+      "id": "MAJ_027",
+      "canonical_en": "Quality Management",
+      "canonical_ar": "إدارة الجودة",
+      "aliases": [
+        "Quality Management",
+        "إدارة الجودة",
+        "ادارة الجودة"
       ]
     }
   ],
