@@ -35,7 +35,6 @@ def test_saudi_phone_formats(value):
 @pytest.mark.parametrize(
     "role,value",
     [
-        ("phone", "call 0551234567"),
         ("phone", "+15551234567"),
         ("phone", 55.12),
         ("email", "first last@example.com"),
@@ -57,6 +56,12 @@ def test_saudi_phone_formats(value):
 def test_ambiguous_values_are_preserved_for_review(role, value):
     result = normalize_value(value, role)
     assert result.value == value and result.issue
+
+
+def test_phone_is_extracted_from_surrounding_text():
+    result = normalize_value("call 0551234567", "phone")
+    assert result.value == "0551234567"
+    assert result.issue == "extra_digits_removed"
 
 
 @pytest.mark.parametrize("value,expected", [("  User@EXAMPLE.COM  ", "User@example.com")])
