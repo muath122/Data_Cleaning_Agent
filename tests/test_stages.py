@@ -287,6 +287,7 @@ def test_committee_and_role_form_choices_use_concise_canonical_values():
         provenance="synthetic",
         columns=["join_committee"],
         rows=[
+            ["لجنة إدارة المشاريع"],
             ["لجنة العلاقات العامة"],
             ["لجنة الاعلام الرقمي و التصميم"],
             ["لجنة البحث وكتابة المحتوى"],
@@ -296,6 +297,7 @@ def test_committee_and_role_form_choices_use_concise_canonical_values():
         committee, "join_committee", "Committee", ModelMustNotRun()
     )
     assert committee_result.dataframe["join_committee"].tolist() == [
+        "Project Management",
         "Public Relations",
         "Digital Media and Design",
         "Research and Content Writing",
