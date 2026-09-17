@@ -150,6 +150,21 @@ def _trim_scalar_whitespace(df: pd.DataFrame) -> tuple[pd.DataFrame, StageResult
     return result.dataframe, result
 
 
+def _remove_output_timestamps(df: pd.DataFrame) -> tuple[pd.DataFrame, StageResult]:
+    """Exclude form submission timestamps from cleaned deliverables."""
+    result = StageResult(df.copy(deep=True), "output_columns")
+    removed = [
+        column
+        for column in df.columns
+        if re.fullmatch(r"timestamp(?:_\d+)?", str(column).strip(), flags=re.I)
+    ]
+    if removed:
+        result.dataframe = df.drop(columns=removed)
+        result.changes.append({"rule": "timestamp_columns_removed", "columns": removed})
+    result.details = {"removed_columns": removed}
+    return result.dataframe, result
+
+
 def _safe_name(path: Path, sheet: str | None) -> str:
     base = re.sub(r"[^\w.-]+", "_", path.stem, flags=re.UNICODE).strip("_")[:70] or "table"
     label = f"{path.name}|{sheet or ''}"
@@ -279,6 +294,8 @@ def run_table(
     notify("validation")
     validation = run_validation(current)
     stages.append(validation)
+    current, output_columns = _remove_output_timestamps(current)
+    stages.append(output_columns)
     return current, stages
 
 

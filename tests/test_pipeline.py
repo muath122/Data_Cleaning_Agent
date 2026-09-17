@@ -3,6 +3,7 @@ import pandas as pd
 from data_cleaning_agent.contracts import AdaptivePlan, CategoryReport, SchemaReport
 from data_cleaning_agent.pipeline import (
     _remove_embedded_headers,
+    _remove_output_timestamps,
     _remove_padding_rows,
     _trim_scalar_whitespace,
     run_pipeline,
@@ -107,3 +108,17 @@ def test_padding_rows_are_removed_and_scalar_whitespace_is_trimmed():
         3: "blank_row",
     }
     assert len(whitespace.changes) == 2
+
+
+def test_cleaned_output_excludes_submission_timestamp_columns():
+    frame = pd.DataFrame(
+        {
+            "timestamp": ["2026-05-03 15:44:52"],
+            "timestamp_2": ["2026-05-04 10:00:00"],
+            "event_date": ["2026-05-10"],
+            "name": ["Ahmed"],
+        }
+    )
+    cleaned, stage = _remove_output_timestamps(frame)
+    assert list(cleaned.columns) == ["event_date", "name"]
+    assert stage.details["removed_columns"] == ["timestamp", "timestamp_2"]
