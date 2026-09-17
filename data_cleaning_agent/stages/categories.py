@@ -41,6 +41,16 @@ def run_categories(
     for row, value in enumerate(df.iloc[:, position]):
         if pd.isna(value) or (isinstance(value, str) and not value.strip()):
             continue
+        if category == "Major" and isinstance(value, str) and re.fullmatch(r"\d{5,}", value.strip()):
+            result.issues.append(
+                {
+                    "row_index": row,
+                    "column_index": position,
+                    "rule": "category_identifier_mismatch",
+                    "value": value,
+                }
+            )
+            continue
         canonical = canonical_value(value, category)
         if canonical:
             known[value] = canonical

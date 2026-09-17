@@ -313,6 +313,24 @@ def test_committee_and_role_form_choices_use_concise_canonical_values():
     assert role_result.dataframe["role"].tolist() == ["Junior Developer", "Core Developer"]
 
 
+def test_numeric_identifier_in_major_is_preserved_and_flagged_without_model_guessing():
+    class ModelMustNotRun:
+        def analyze(self, *_args, **_kwargs):
+            raise AssertionError("an identifier must not be guessed into a major")
+
+    data = prepared(["2210992"])
+    result = run_categories(data, "التخصص", "Major", ModelMustNotRun())
+    assert result.dataframe.at[0, "التخصص"] == "2210992"
+    assert result.issues == [
+        {
+            "row_index": 0,
+            "column_index": 0,
+            "rule": "category_identifier_mismatch",
+            "value": "2210992",
+        }
+    ]
+
+
 def test_model_alias_is_canonicalized_before_application():
     class AliasModel:
         def analyze(self, _role, payload, _response_type):
