@@ -364,8 +364,24 @@
         "Data Analysis",
         "تحليل البيانات"
       ]
-    }
-  ],
+    },
+      { 
+        "id": "MAJ_020", 
+        "canonical_en": "Mechatronics Engineering",
+         "canonical_ar": "هندسة الميكاترونكس", 
+         "aliases": [ "Mechatronics Engineering", "Mechatronics", "هندسة الميكاترونكس", "هندسة ميكاترونكس", "ميكاترونكس"
+          ]
+         },
+
+          { 
+            "id": "MAJ_021",
+             "canonical_en": "Quality Management",
+              "canonical_ar": "إدارة الجودة", 
+              "aliases": [ "Quality Management", "إدارة الجودة", "ادارة الجودة", "إدارة جوده", "ادارة جوده" 
+              ]
+               }
+               ],
+  
   "main_committees": [
     {
       "id": "MAIN_001",
@@ -473,4 +489,5 @@
     "unknown_value_action": "needs_review",
     "auto_add_unknown_values": false
   }
+  
 }
