@@ -129,11 +129,51 @@ def run_results(run_id: str):
         if "output" not in item:
             continue
         csv_path = output / item["output"]
+        cleaned = pd.read_csv(csv_path, dtype=str, keep_default_na=False)
         preview = pd.read_csv(csv_path, dtype=str, keep_default_na=False, nrows=6)
         report_path = output / item["output"].replace(".cleaned.csv", ".report.json")
         report = json.loads(report_path.read_text(encoding="utf-8"))
         changes = []
         adaptive_decisions = []
+        data_insights = []
+        for column in cleaned.columns:
+            values = cleaned[column].astype(str).str.strip()
+            values = values[values != ""]
+
+            if values.empty:
+             continue
+
+            unique_count = values.nunique()
+            total_count = len(values)
+            unique_ratio = unique_count / total_count
+
+            # Skip columns that are unlikely to produce useful distributions.
+            if unique_count < 2:
+              continue
+
+            if unique_count > 12:
+                continue
+
+            if unique_ratio > 0.7:
+                continue
+
+            counts = values.value_counts()
+
+            data_insights.append(
+                {
+                     "column": column,
+                     "total": total_count,
+                    "categories": [
+                        {
+                            "value": str(category),
+                            "count": int(count),
+                            "percentage": round((count / total_count) * 100, 1),
+                        }
+                        for category, count in counts.items()
+                    ],
+                }
+            )
+
         for stage in report["stages"]:
             for change in stage["changes"][:12]:
                 changes.append({"stage": stage["stage"], **change})
@@ -146,6 +186,7 @@ def run_results(run_id: str):
                 "rows_preview": preview.iloc[:, :8].to_dict(orient="records"),
                 "changes_preview": changes[:20],
                 "adaptive_decisions": adaptive_decisions,
+                "data_insights": data_insights,
                 "download": f"/api/runs/{run_id}/files/{item['output']}",
                 "report_download": f"/api/runs/{run_id}/files/{report_path.name}",
             }
