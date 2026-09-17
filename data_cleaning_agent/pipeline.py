@@ -8,7 +8,6 @@ from pathlib import Path
 
 import pandas as pd
 
-from .adaptive import run_adaptive
 from .contracts import StageResult
 from .io import read_table
 from .model import LocalModel, ModelError
@@ -314,9 +313,6 @@ def run_table(
     current, padding_rows = _remove_padding_rows(current)
     current, whitespace = _trim_scalar_whitespace(current)
     current, duplicates = _remove_duplicate_rows(current)
-    notify("adaptive")
-    adaptive = run_adaptive(current, model=client)
-    current = adaptive.dataframe
     notify("structured")
     structured = run_structured(current)
     current = structured.dataframe
@@ -326,7 +322,6 @@ def run_table(
         padding_rows,
         whitespace,
         duplicates,
-        adaptive,
         structured,
     ]
     for column in list(current.columns):
