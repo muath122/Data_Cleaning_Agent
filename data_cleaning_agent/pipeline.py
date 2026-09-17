@@ -43,6 +43,7 @@ CATEGORY_NAMES = {
     "preferred_role": "Roles",
     "department": "Departments",
     "department_name": "Departments",
+    "target_areas": "Departments",
 }
 
 HEADER_ALIASES = {

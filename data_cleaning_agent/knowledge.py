@@ -14,6 +14,8 @@ SECTIONS = {
     "Branch": ("branches",),
     "Major": ("majors",),
     "Committee": ("main_committees", "sub_committees"),
+    "Programming languages": ("programming_languages",),
+    "Departments": ("technical_areas",),
 }
 
 

@@ -7,6 +7,8 @@
       "universities",
       "branches",
       "majors",
+      "programming_languages",
+      "technical_areas",
       "main_committees",
       "sub_committees"
     ]
@@ -505,6 +507,110 @@
         "إدارة الجودة",
         "ادارة الجودة"
       ]
+    }
+  ],
+  "programming_languages": [
+    {
+      "id": "LANG_001",
+      "canonical_en": "Python",
+      "aliases": ["Python", "python", "بايثون"]
+    },
+    {
+      "id": "LANG_002",
+      "canonical_en": "Java",
+      "aliases": ["Java", "java", "JAVA", "جافا"]
+    },
+    {
+      "id": "LANG_003",
+      "canonical_en": "JavaScript",
+      "aliases": ["JavaScript", "Javascript", "javascript", "JS", "java script"]
+    },
+    {
+      "id": "LANG_004",
+      "canonical_en": "C",
+      "aliases": ["C", "c", "سي"]
+    },
+    {
+      "id": "LANG_005",
+      "canonical_en": "C++",
+      "aliases": ["C++", "c++", "C plus plus"]
+    },
+    {
+      "id": "LANG_006",
+      "canonical_en": "R",
+      "aliases": ["R", "r", "ار"]
+    },
+    {
+      "id": "LANG_007",
+      "canonical_en": "SQL",
+      "aliases": ["SQL", "sql"]
+    },
+    {
+      "id": "LANG_008",
+      "canonical_en": "HTML",
+      "aliases": ["HTML", "html"]
+    },
+    {
+      "id": "LANG_009",
+      "canonical_en": "CSS",
+      "aliases": ["CSS", "css"]
+    },
+    {
+      "id": "LANG_010",
+      "canonical_en": "PHP",
+      "aliases": ["PHP", "php"]
+    },
+    {
+      "id": "LANG_011",
+      "canonical_en": "Dart",
+      "aliases": ["Dart", "dart"]
+    },
+    {
+      "id": "LANG_012",
+      "canonical_en": "Swift",
+      "aliases": ["Swift", "swift"]
+    },
+    {
+      "id": "LANG_013",
+      "canonical_en": "Rust",
+      "aliases": ["Rust", "rust"]
+    },
+    {
+      "id": "LANG_014",
+      "canonical_en": "Assembly",
+      "aliases": ["Assembly", "Assembly Language", "assembly"]
+    }
+  ],
+  "technical_areas": [
+    {
+      "id": "AREA_001",
+      "canonical_en": "Artificial Intelligence",
+      "aliases": ["Artificial Intelligence", "AI / ML", "الذكاء الاصطناعي (AI / ML)", "ذكاء اصطناعي"]
+    },
+    {
+      "id": "AREA_002",
+      "canonical_en": "Data Analysis",
+      "aliases": ["Data Analysis", "تحليل البيانات (Data Analysis)", "تحليل البيانات"]
+    },
+    {
+      "id": "AREA_003",
+      "canonical_en": "Web and App Development",
+      "aliases": ["Web and App Development", "تطوير الويب أو التطبيقات", "تطوير الويب", "تطوير التطبيقات"]
+    },
+    {
+      "id": "AREA_004",
+      "canonical_en": "UI/UX Design",
+      "aliases": ["UI/UX Design", "تطوير الواجهات (UI / UX)", "تطوير الواجهات", "UI / UX"]
+    },
+    {
+      "id": "AREA_005",
+      "canonical_en": "Automation and Intelligent Systems",
+      "aliases": ["Automation and Intelligent Systems", "الأتمتة والأنظمة الذكية (Automation)", "الأتمتة والأنظمة الذكية"]
+    },
+    {
+      "id": "AREA_006",
+      "canonical_en": "Robotics and Hardware",
+      "aliases": ["Robotics and Hardware", "Robotic(Arduino/Hardware)", "Robotics", "Arduino/Hardware"]
     }
   ],
   "main_committees": [

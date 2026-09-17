@@ -12,6 +12,9 @@ from ..model import LocalModel, ModelError
 from ..privacy import PreparedData
 
 
+MULTI_VALUE_CATEGORIES = {"Skills", "Tools", "Programming languages", "Departments"}
+
+
 def column_position(df, column):
     matches = [i for i, name in enumerate(df.columns) if name == column]
     if len(matches) != 1:
@@ -43,11 +46,19 @@ def run_categories(
             known[value] = canonical
             continue
         separators = r"[,،;؛\n|/]" if category == "Programming languages" else r"[,،;؛\n|]"
-        if isinstance(value, str) and re.search(separators, value):
+        if (
+            category in MULTI_VALUE_CATEGORIES
+            and isinstance(value, str)
+            and re.search(separators, value)
+        ):
             parts = [
                 part.strip() for part in re.split(rf"\s*{separators}\s*", value) if part.strip()
             ]
-            if len(parts) > 1:
+            unknown_prose = category == "Programming languages" and any(
+                canonical_value(part, category) is None and len(part.split()) > 4
+                for part in parts
+            )
+            if len(parts) > 1 and not unknown_prose:
                 multi_values[value] = parts
                 for part in parts:
                     if canonical := canonical_value(part, category):

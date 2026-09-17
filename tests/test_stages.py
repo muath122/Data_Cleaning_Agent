@@ -132,7 +132,7 @@ class FakeCategories:
         return CategoryReport(results=rows)
 
 
-def test_categories_mapping_ambiguity_and_multiselect():
+def test_scalar_categories_do_not_split_punctuation_into_false_categories():
     data = prepared(["علوم الحاسب", "CS", "ambiguous", "Python, Java", None, "CS"])
     client = FakeCategories()
     result = run_categories(data, "التخصص", "Major", client)
@@ -140,15 +140,15 @@ def test_categories_mapping_ambiguity_and_multiselect():
         "Computer Science",
         "Computer Science",
         "ambiguous",
-        "Python; Java",
+        "Python, Java",
         None,
         "Computer Science",
     ]
     assert result.dataframe["other"].tolist() == ["unchanged"] * 6
     assert data.rows[0][0] == "علوم الحاسب"
-    assert len(client.calls) == 1 and client.calls[0]["values"] == ["ambiguous", "Python", "Java"]
+    assert len(client.calls) == 1 and client.calls[0]["values"] == ["ambiguous", "Python, Java"]
     assert {issue["rule"] for issue in result.issues} == {"uncertain_category"}
-    assert result.details["multi_value_inputs"] == 1
+    assert result.details["multi_value_inputs"] == 0
 
 
 def test_categories_use_knowledge_base_before_model():
@@ -212,6 +212,70 @@ def test_branch_knowledge_base_unifies_campus_variants_without_merging_audiences
         "Faisaliyah Campus (Women)",
         "Asfan Campus (Men)",
     ]
+
+
+def test_programming_language_lists_use_reviewed_tokens():
+    class ModelMustNotRun:
+        def analyze(self, *_args, **_kwargs):
+            raise AssertionError("reviewed language tokens must not require the model")
+
+    data = PreparedData(
+        provenance="synthetic",
+        columns=["programming_languages"],
+        rows=[["بايثون، جافا، سي، ار"]],
+    )
+    result = run_categories(
+        data, "programming_languages", "Programming languages", ModelMustNotRun()
+    )
+    assert result.dataframe.at[0, "programming_languages"] == "Python; Java; C; R"
+
+
+def test_programming_language_prose_is_sent_to_model_without_fragmenting():
+    class WholeSentenceModel:
+        def __init__(self):
+            self.values = None
+
+        def analyze(self, _role, payload, _response_type):
+            self.values = payload["values"]
+            value = self.values[0]
+            return CategoryReport(
+                results=[
+                    {
+                        "original_value": value,
+                        "column": payload["column"],
+                        "category": payload["category"],
+                        "canonical_value": "Python; C; Java; R",
+                        "confidence": 0.95,
+                        "status": "mapped",
+                        "reasoning": "Extracted languages from the complete response",
+                    }
+                ]
+            )
+
+    value = "سبق لي استخدام عدة لغات وأهمها بايثون، سي، جافا، ار"
+    model = WholeSentenceModel()
+    data = PreparedData(
+        provenance="synthetic", columns=["programming_languages"], rows=[[value]]
+    )
+    result = run_categories(data, "programming_languages", "Programming languages", model)
+    assert model.values == [value]
+    assert result.dataframe.at[0, "programming_languages"] == "Python; C; Java; R"
+
+
+def test_target_areas_are_normalized_as_multiselect_departments():
+    class ModelMustNotRun:
+        def analyze(self, *_args, **_kwargs):
+            raise AssertionError("reviewed technical areas must not require the model")
+
+    data = PreparedData(
+        provenance="synthetic",
+        columns=["target_areas"],
+        rows=[["ذكاء اصطناعي، تحليل البيانات، تطوير الويب"]],
+    )
+    result = run_categories(data, "target_areas", "Departments", ModelMustNotRun())
+    assert result.dataframe.at[0, "target_areas"] == (
+        "Artificial Intelligence; Data Analysis; Web and App Development"
+    )
 
 
 def test_model_alias_is_canonicalized_before_application():
