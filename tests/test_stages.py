@@ -190,6 +190,30 @@ def test_major_knowledge_base_unifies_reviewed_arabic_english_and_typo_variants(
     assert result.details["knowledge_base_matches"] == len(values)
 
 
+def test_branch_knowledge_base_unifies_campus_variants_without_merging_audiences():
+    class ModelMustNotRun:
+        def analyze(self, *_args, **_kwargs):
+            raise AssertionError("reviewed branch aliases must not require the model")
+
+    data = PreparedData(
+        provenance="synthetic",
+        columns=["branch"],
+        rows=[
+            ["فرع الرحاب"],
+            ["فرع الرحاب طالبات"],
+            ["فرع الجامعة الرئيسي طالبات (الفيصلية)"],
+            ["فرع الجامعة الرئيسي طلاب (عسفان)"],
+        ],
+    )
+    result = run_categories(data, "branch", "Branch", ModelMustNotRun())
+    assert result.dataframe["branch"].tolist() == [
+        "Al-Rehab Campus (Women)",
+        "Al-Rehab Campus (Women)",
+        "Faisaliyah Campus (Women)",
+        "Asfan Campus (Men)",
+    ]
+
+
 def test_model_alias_is_canonicalized_before_application():
     class AliasModel:
         def analyze(self, _role, payload, _response_type):

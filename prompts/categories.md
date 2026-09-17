@@ -29,13 +29,15 @@ values into consistent canonical representations.
 
 You handle ONLY:
 
-1. Major
-2. Committee
-3. Skills
-4. Tools
-5. Programming languages
-6. Roles
-7. Departments
+1. University
+2. Branch
+3. Major
+4. Committee
+5. Skills
+6. Tools
+7. Programming languages
+8. Roles
+9. Departments
 
 ## Core objective
 
@@ -143,6 +145,13 @@ Never determine meaning from the value alone.
 Normalize university names only when the institution is clearly equivalent.
 Prefer the reviewed local knowledge base. Keep unknown or ambiguous institutions
 unchanged and mark them for review.
+
+## Branch
+
+Normalize campus or branch names only when they clearly refer to the same physical
+campus and audience. Do not merge separate men's and women's campuses. A university
+name appearing in a branch column is a schema anomaly, not a campus alias; preserve
+it and mark it for review.
 
 MAJOR
 

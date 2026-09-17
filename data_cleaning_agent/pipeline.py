@@ -31,6 +31,8 @@ STAGE_STATUS = {
 CATEGORY_NAMES = {
     "university": "University",
     "university_name": "University",
+    "branch": "Branch",
+    "campus": "Branch",
     "major": "Major",
     "committee": "Committee",
     "committee_name": "Committee",

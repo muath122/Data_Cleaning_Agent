@@ -5,6 +5,7 @@
     "purpose": "Canonical reference values and aliases for the data-cleaning multi-agent system.",
     "scope": [
       "universities",
+      "branches",
       "majors",
       "main_committees",
       "sub_committees"
@@ -143,6 +144,49 @@
         "Dar Al-Hekma University",
         "Dar Al Hekma University",
         "جامعة دار الحكمة"
+      ]
+    }
+  ],
+  "branches": [
+    {
+      "id": "BRN_001",
+      "canonical_en": "Faisaliyah Campus (Women)",
+      "canonical_ar": "فرع الفيصلية طالبات",
+      "aliases": [
+        "Faisaliyah Campus (Women)",
+        "فرع الفيصلية طالبات",
+        "فرع الجامعة الرئيسي طالبات (الفيصلية)"
+      ]
+    },
+    {
+      "id": "BRN_002",
+      "canonical_en": "Asfan Campus (Men)",
+      "canonical_ar": "فرع عسفان طلاب",
+      "aliases": [
+        "Asfan Campus (Men)",
+        "فرع عسفان طلاب",
+        "فرع الجامعة الرئيسي طلاب (عسفان)"
+      ]
+    },
+    {
+      "id": "BRN_003",
+      "canonical_en": "Khulais Campus (Women)",
+      "canonical_ar": "فرع خليص طالبات",
+      "aliases": [
+        "Khulais Campus (Women)",
+        "فرع خليص طالبات",
+        "فرع خليص (طالبات)"
+      ]
+    },
+    {
+      "id": "BRN_004",
+      "canonical_en": "Al-Rehab Campus (Women)",
+      "canonical_ar": "فرع الرحاب طالبات",
+      "aliases": [
+        "Al-Rehab Campus (Women)",
+        "Al Rehab Campus (Women)",
+        "فرع الرحاب",
+        "فرع الرحاب طالبات"
       ]
     }
   ],

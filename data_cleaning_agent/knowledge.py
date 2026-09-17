@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_KNOWLEDGE_BASE = ROOT / "knowledge_base" / "knowledge_base_v0.3.json"
 SECTIONS = {
     "University": ("universities",),
+    "Branch": ("branches",),
     "Major": ("majors",),
     "Committee": ("main_committees", "sub_committees"),
 }
