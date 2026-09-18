@@ -162,23 +162,23 @@ major name defined by the reviewed knowledge base whenever a clear match exists.
 
 Rules:
 
-1. If the value is already a canonical English major, keep it unchanged.
+For every Major value:
 
-2. If the value is an Arabic major, identify its clear semantic English
-   equivalent and return the corresponding canonical English major.
-
-3. If the value is an English alias, abbreviation, spelling variation,
-   capitalization variation, or common alternative name, map it to the
-   corresponding canonical English major.
-
-4. Never return an Arabic value as canonical_value for Major when a reviewed
-   English canonical value exists.
-
-5. Do not invent a new canonical major name when the value clearly matches
-   an existing reviewed major.
-
-6. Do not merge different academic majors merely because they are related.
-
+1. First understand the actual academic major.
+2. Translate the major into its natural English academic name.
+3. Do NOT assume that the major belongs to computing, technology,
+   engineering, data science, artificial intelligence, or any other
+   technical domain.
+4. Preserve the actual meaning of non-computing majors.
+5. After producing the English translation, check the reviewed
+   knowledge base for an existing canonical major.
+6. If the translated major matches a knowledge-base value, use that
+   canonical value.
+7. If no knowledge-base match exists, keep the English translation as
+   the proposed canonical value and mark it as needs_review.
+8. Never convert an unrelated major into a computing major because
+   most values in the dataset are computing-related.
+   
 Examples:
 
 "علوم الحاسب"
